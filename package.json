@@ -1,0 +1,27 @@
+{
+  "name": "tank-wars-ai",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fgfg163/tank-wars-ai.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fgfg163/tank-wars-ai/issues"
+  },
+  "homepage": "https://github.com/fgfg163/tank-wars-ai#readme",
+  "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "commander": "^2.11.0",
+    "node-fetch": "^1.7.3"
+  }
+}
