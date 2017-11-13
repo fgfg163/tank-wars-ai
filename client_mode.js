@@ -24,7 +24,7 @@ if (options.api) {
     console.log(state);
     let i = 0;
     while (!state.ended) {
-      console.log(i++, state.events);
+      console.log(i++);
       const nextStepList = ai(state);
 
 
