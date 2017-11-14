@@ -19,14 +19,20 @@ export default function (state) {
   state.myTank = myTank;
 
   // 参谋将坦克安排到选定地点附近
-  const { tankList: staffOfficerOrder } = staffOfficer(state, commanderOrders);
-  console.log(staffOfficerOrder);
+  // const { tankList: staffOfficerOrder } = staffOfficer(state, commanderOrders);
+  // console.log(staffOfficerOrder);
+
+  myTank.forEach(tank => {
+    tank.target = commanderOrders[0];
+  });
+
   // 发送给坦克车长进行判断
   const tankOrder = {};
-  staffOfficerOrder.forEach(tank => {
+  myTank.forEach(tank => {
     const tOrder = tankCommander(state, tank);
-    tankOrder[tank.id] = tOrder;
+    console.log(tOrder.tank);
+    tankOrder[tank.id] = tOrder.tank.nextStep;
   });
-  console.log(tankOrder);
+
   return tankOrder;
 }

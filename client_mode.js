@@ -17,6 +17,8 @@ if (!program.api) {
   options.api = `http://ml.niven.cn:8777/game/${options.gameid}/match/${options.side}`;
 }
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 if (options.api) {
   (async () => {
     let state = await fetch(options.api, { method: 'GET' })
@@ -25,10 +27,12 @@ if (options.api) {
     let i = 0;
     while (!state.ended) {
       console.log(i++);
-      const nextStepList = ai(state);
+      console.log(state.myTank);
+      const nextStep = ai(state);
+      console.log(nextStep);
 
-
-      state = await fetch(options.api, { method: 'POST', body: JSON.stringify({}) }).then(r => r.json());
+      state = await fetch(options.api, { method: 'POST', body: JSON.stringify(nextStep) }).then(r => r.json());
+      await sleep(500);
     }
   })().catch(e => {
     setTimeout(() => {
