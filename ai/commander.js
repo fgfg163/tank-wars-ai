@@ -10,14 +10,8 @@ export default function (state) {
     && typeof(params.flagX) === 'number'
     && typeof(params.flagY) === 'number') {
     targetList.push({
-      type: 'get-flag',
-      x: params.flagX,
-      y: params.flagY,
-      weight: 100,
-    });
-  } else {
-    targetList.push({
-      type: 'get-flag',
+      type: 'move-to',
+      tank: '',
       x: params.flagX,
       y: params.flagY,
       weight: 100,

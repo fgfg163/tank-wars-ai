@@ -3,3 +3,17 @@ export const copy = function (map) {
     row.map(cell => cell)
   );
 };
+
+export const getObstacleListFromMap = (mapObj) => {
+  const obstacle = [];
+  mapObj.forEach((row, rowIndex) => {
+    row.forEach((col, colIndex) => {
+      if (col === 1)
+        obstacle.push({
+          x: colIndex,
+          y: rowIndex,
+        })
+    });
+  });
+  return obstacle;
+};
