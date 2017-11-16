@@ -2,14 +2,16 @@ import commander from './commander'
 import tankCommander from './tank/tank-commander'
 import { getObstacleListFromMap } from './utils/map-tools'
 
+const stateData = {};
+
+
 export default function (state) {
   // 分析数据
   // 处理地图数据，将二维数组转换为点数组和map对象
   const terain = state.terain || [];
-  const stateData = {};
   stateData.height = (terain || []).length || 0;
   stateData.width = ((terain || [])[0] || []).length || 0;
-  stateData.obstractList = getObstacleListFromMap(terain);
+  stateData.obstractList = stateData.obstractList || getObstacleListFromMap(terain);
   stateData.obstractMap = new Map(stateData.obstractList.map(e => ([`${e.x},${e.y}`, e])));
   // 坦克map对象
   stateData.myTankMap = new Map((state.myTank || []).map(e => ([`${e.x},${e.y}`, e])));

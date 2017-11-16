@@ -49,13 +49,23 @@ export default function (state, stateData, tank, commanderOrders) {
     const scanXEnd = Math.min(tank.x + 1, width - 1);
     // 上方
     rangeArray(tank.y - 1, 0).some((theY, distance) => {
+      // 如果扫描到了障碍物，则停止扫描
       if (obstractMap.has(`${tank.x},${theY}`)) {
         return true;
       }
+      // 扫描宽度
       rangeArray(scanXStart, scanXEnd).some(theX => {
         const theIndex = `${theX},${theY}`;
-        if (theX === tank.x && myTankMap.has(theIndex)) {
-          nextStepMap['fire-up'].weight = -1000;
+        // 如果有友军
+        if (myTankMap.has(theIndex)) {
+          const theTank = myTankMap.get(theIndex);
+          if (theX === tank.x) {
+            nextStepMap['fire-down'].weight += -100 + height - distance;
+          } else if (theX < tank.x && theTank.direction === 'right') {
+            nextStepMap['fire-down'].weight += -100 + height - distance;
+          } else if (theX > tank.x && theTank.direction === 'left') {
+            nextStepMap['fire-down'].weight += -100 + height - distance;
+          }
         }
         if (enemyTankMap.has(theIndex)) {
           nextStepMap['fire-up'].weight += 10 + height - distance;
@@ -64,13 +74,23 @@ export default function (state, stateData, tank, commanderOrders) {
     });
     // 下方
     rangeArray(tank.y + 1, height - 1).some((theY, distance) => {
+      // 如果扫描到了障碍物，则停止扫描
       if (obstractMap.has(`${tank.x},${theY}`)) {
         return true;
       }
+      // 扫描宽度
       rangeArray(scanXStart, scanXEnd).some(theX => {
         const theIndex = `${theX},${theY}`;
-        if (theX === tank.x && myTankMap.has(theIndex)) {
-          nextStepMap['fire-down'].weight = -1000;
+        // 如果有友军
+        if (myTankMap.has(theIndex){
+          const theTank = myTankMap.get(theIndex);
+          if (theX === tank.x) {
+            nextStepMap['fire-down'].weight += -100 + height - distance;
+          } else if (theX < tank.x && theTank.direction === 'right') {
+            nextStepMap['fire-down'].weight += -100 + height - distance;
+          } else if (theX > tank.x && theTank.direction === 'left') {
+            nextStepMap['fire-down'].weight += -100 + height - distance;
+          }
         }
         if (enemyTankMap.has(theIndex)) {
           nextStepMap['fire-down'].weight += 10 + height - distance;
@@ -82,13 +102,23 @@ export default function (state, stateData, tank, commanderOrders) {
     const scanYEnd = Math.min(tank.y + 1, width - 1);
     // 左方
     rangeArray(tank.x - 1, 0).some((theX, distance) => {
+      // 如果扫描到了障碍物，则停止扫描
       if (obstractMap.has(`${theX},${tank.y}`)) {
         return true;
       }
+      // 扫描宽度
       rangeArray(scanYStart, scanYEnd).some(theY => {
         const theIndex = `${theX},${theY}`;
-        if (theY === tank.y && myTankMap.has(theIndex)) {
-          nextStepMap['fire-left'].weight = -1000;
+        // 如果有友军
+        if (myTankMap.has(theIndex){
+          const theTank = myTankMap.get(theIndex);
+          if (theY === tank.y) {
+            nextStepMap['fire-left'].weight += -100 + width - distance;
+          } else if (theY < tank.y && theTank.direction === 'down') {
+            nextStepMap['fire-right'].weight += -100 + width - distance;
+          } else if (theY > tank.y && theTank.direction === 'up') {
+            nextStepMap['fire-right'].weight += -100 + width - distance;
+          }
         }
         if (enemyTankMap.has(theIndex)) {
           nextStepMap['fire-left'].weight += 10 + width - distance;
@@ -97,13 +127,22 @@ export default function (state, stateData, tank, commanderOrders) {
     });
     // 右方
     rangeArray(tank.x + 1, width - 1).some((theX, distance) => {
+      // 如果扫描到了障碍物，则停止扫描
       if (obstractMap.has(`${theX},${tank.y}`)) {
         return true;
       }
       rangeArray(scanYStart, scanYEnd).some(theY => {
         const theIndex = `${theX},${theY}`;
-        if (theY === tank.y && myTankMap.has(theIndex)) {
-          nextStepMap['fire-right'].weight = -1000;
+        // 如果有友军
+        if (myTankMap.has(theIndex){
+          const theTank = myTankMap.get(theIndex);
+          if (theY === tank.y) {
+            nextStepMap['fire-right'].weight += -100 + width - distance;
+          } else if (theY < tank.y && theTank.direction === 'down') {
+            nextStepMap['fire-right'].weight += -100 + width - distance;
+          } else if (theY > tank.y && theTank.direction === 'up') {
+            nextStepMap['fire-right'].weight += -100 + width - distance;
+          }
         }
         if (enemyTankMap.has(theIndex)) {
           nextStepMap['fire-right'].weight += 10 + width - distance;
