@@ -26,10 +26,9 @@ if (options.api) {
     console.log(state);
     let i = 0;
     while (!state.ended) {
-      console.log(i++);
-      console.log(state.myTank);
+      console.log(i++, '--------------------------------');
       const nextStep = ai(state);
-      console.log(nextStep);
+      console.log('nextStep', nextStep);
 
       state = await fetch(options.api, { method: 'POST', body: JSON.stringify(nextStep) }).then(r => r.json());
       await sleep(500);
