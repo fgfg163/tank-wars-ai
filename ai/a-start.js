@@ -161,4 +161,13 @@ export default function (startTank, endPoint, { width, height, mapCellList }) {
     });
     return resultPath;
   }
+  // 如果无法到达，则寻找一个离目标最近的点
+
+  let minDistance;
+  let minPoint;
+  closeListMap.forEach(p => {
+    const distance = '';
+    if (!minDistance || minDistance > p.x + p.y) {
+    }
+  });
 }
