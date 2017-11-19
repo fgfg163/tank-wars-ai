@@ -562,7 +562,7 @@ PlayerServerClient.prototype.recv_uploadMap = function(input,mtype,rseqid) {
 
   callback(null);
 };
-PlayerServerClient.prototype.uploadParamters = function(arguments, callback) {
+PlayerServerClient.prototype.uploadParamters = function(args, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -573,19 +573,19 @@ PlayerServerClient.prototype.uploadParamters = function(arguments, callback) {
         _defer.resolve(result);
       }
     };
-    this.send_uploadParamters(arguments);
+    this.send_uploadParamters(args);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_uploadParamters(arguments);
+    this.send_uploadParamters(args);
   }
 };
 
-PlayerServerClient.prototype.send_uploadParamters = function(arguments) {
+PlayerServerClient.prototype.send_uploadParamters = function(args) {
   var output = new this.pClass(this.output);
   output.writeMessageBegin('uploadParamters', Thrift.MessageType.CALL, this.seqid());
   var args = new PlayerServer_uploadParamters_args();
-  args.arguments = arguments;
+  args.arguments = args;
   args.write(output);
   output.writeMessageEnd();
   return this.output.flush();

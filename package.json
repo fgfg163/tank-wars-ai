@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "ele": "node index.js",
+    "aq": "node aq.js",
     "thrift": "node build-thrift.js"
   },
   "repository": {

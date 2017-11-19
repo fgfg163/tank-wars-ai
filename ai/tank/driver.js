@@ -1,6 +1,7 @@
 import aStart from '../a-start';
 
-const nextPointDirection = (nowPoint, nextPoint) => {
+// 下一个点在当前点的方向，相对地图的方向
+const getNextPointDirection = (nowPoint, nextPoint) => {
   if (nowPoint.x === nextPoint.x && nowPoint.y > nextPoint.y) {
     // 下一步在当前位置的上方
     return 'up';
@@ -17,11 +18,45 @@ const nextPointDirection = (nowPoint, nextPoint) => {
   return '';
 };
 
+// 下一步的动作执行后的方向，相对地图的方向
+const getNextPointDirectionByNextStep = (nowPoint, nextStep) => {
+  switch (`${nowPoint.direction},${nextStep}`) {
+    case 'up,move':
+    case 'up,stay':
+    case 'right,left':
+    case 'left,right':
+    case 'down,back':
+      return 'up';
+      break;
+    case 'down,move':
+    case 'down,stay':
+    case 'right,right':
+    case 'left,left':
+    case 'up,back':
+      return 'down';
+      break;
+    case 'left,move':
+    case 'left,stay':
+    case 'up,left':
+    case 'down,right':
+    case 'right,back':
+      return 'left';
+      break;
+    case 'right,move':
+    case 'right,stay':
+    case 'up,right':
+    case 'down,left':
+    case 'left,back':
+      return 'right';
+      break;
+  }
+  return '';
+};
+
 export default function (state, stateData, tank, commanderOrders) {
   const width = stateData.width;
   const height = stateData.height;
   const obstractList = stateData.obstractList;
-  const obstractMap = stateData.obstractMap;
   const myBulletMap = stateData.myBulletMap;
   const myTank = state.myTank;
 
@@ -29,22 +64,32 @@ export default function (state, stateData, tank, commanderOrders) {
     'move': {
       tankId: tank.id,
       nextStep: 'move',
+      direction: getNextPointDirectionByNextStep(tank, 'move'), // 执行下一步时坦克的方向
       weight: 0,
     },
     'right': {
       tankId: tank.id,
       nextStep: 'right',
+      direction: getNextPointDirectionByNextStep(tank, 'right'), // 执行下一步时坦克的方向
       weight: 0,
     },
     'left': {
       tankId: tank.id,
       nextStep: 'left',
+      direction: getNextPointDirectionByNextStep(tank, 'left'), // 执行下一步时坦克的方向
       weight: 0,
     },
     'back': {
       tankId: tank.id,
       nextStep: 'back',
+      direction: getNextPointDirectionByNextStep(tank, 'back'), // 执行下一步时坦克的方向
       weight: 0,
+    },
+    'stay': {
+      tankId: tank.id,
+      nextStep: 'stay',
+      direction: getNextPointDirectionByNextStep(tank, 'stay'), // 执行下一步时坦克的方向
+      weight: 1,
     },
   };
 
@@ -57,6 +102,7 @@ export default function (state, stateData, tank, commanderOrders) {
   });
 
   const theOrder = orders[0];
+
   if (theOrder) {
     // 将我方坦克当成高权重方块放进a星算法进行计算
     const myTankPositionWithWeight = myTank.map(t => ({
@@ -92,7 +138,8 @@ export default function (state, stateData, tank, commanderOrders) {
         // 计算下一步操作
         const nowPoint = path[0];
         const nextPoint = path[1];
-        switch (`${tank.direction},${nextPointDirection(nowPoint, nextPoint)}`) {
+        const nextPointDirection = getNextPointDirection(nowPoint, nextPoint);
+        switch (`${tank.direction},${nextPointDirection}`) {
           case 'up,up':
           case 'down,down':
           case 'left,left':

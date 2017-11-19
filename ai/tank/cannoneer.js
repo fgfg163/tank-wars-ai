@@ -22,21 +22,25 @@ export default function (state, stateData, tank, commanderOrders) {
     'fire-up': {
       tankId: tank.id,
       nextStep: 'fire-up',
+      direction: 'up',
       weight: 0,
     },
     'fire-down': {
       tankId: tank.id,
       nextStep: 'fire-down',
+      direction: 'down',
       weight: 0,
     },
     'fire-left': {
       tankId: tank.id,
       nextStep: 'fire-left',
+      direction: 'left',
       weight: 0,
     },
     'fire-right': {
       tankId: tank.id,
       nextStep: 'fire-right',
+      direction: 'right',
       weight: 0,
     },
   };
@@ -82,7 +86,7 @@ export default function (state, stateData, tank, commanderOrders) {
       rangeArray(scanXStart, scanXEnd).some(theX => {
         const theIndex = `${theX},${theY}`;
         // 如果有友军
-        if (myTankMap.has(theIndex){
+        if (myTankMap.has(theIndex)) {
           const theTank = myTankMap.get(theIndex);
           if (theX === tank.x) {
             nextStepMap['fire-down'].weight += -100 + height - distance;
@@ -110,7 +114,7 @@ export default function (state, stateData, tank, commanderOrders) {
       rangeArray(scanYStart, scanYEnd).some(theY => {
         const theIndex = `${theX},${theY}`;
         // 如果有友军
-        if (myTankMap.has(theIndex){
+        if (myTankMap.has(theIndex)) {
           const theTank = myTankMap.get(theIndex);
           if (theY === tank.y) {
             nextStepMap['fire-left'].weight += -100 + width - distance;
@@ -134,7 +138,7 @@ export default function (state, stateData, tank, commanderOrders) {
       rangeArray(scanYStart, scanYEnd).some(theY => {
         const theIndex = `${theX},${theY}`;
         // 如果有友军
-        if (myTankMap.has(theIndex){
+        if (myTankMap.has(theIndex)) {
           const theTank = myTankMap.get(theIndex);
           if (theY === tank.y) {
             nextStepMap['fire-right'].weight += -100 + width - distance;

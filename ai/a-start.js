@@ -34,6 +34,7 @@ export default function (startTank, endPoint, { width, height, mapCellList }) {
   const obstacleList = mapCellList.filter(e => !e.weight);
   const cellList = mapCellList.filter(e => e.weight);
   const obstracleMap = new Map(obstacleList.map(e => ([`${e.x},${e.y}`, e])));
+  // console.log('obstacleList', obstacleList);
   const cellMap = new Map(cellList.map(e => ([`${e.x},${e.y}`, e])));
   // open队列，象的方式方便取索引
   const openListMap = new Map();

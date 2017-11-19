@@ -22,8 +22,16 @@ export default function (state, stateData) {
     targetList.push({
       type: 'move-to',
       tankId: 'ALL',
-      x: 1,
-      y: 1,
+      x: 10,
+      y: 10,
+      weight: 10,
+    });
+  } else {
+    targetList.push({
+      type: 'move-to',
+      tankId: 'ALL',
+      x: 10,
+      y: 10,
       weight: 10,
     });
   }

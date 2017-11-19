@@ -12,7 +12,7 @@ export default function (state) {
   stateData.height = (terain || []).length || 0;
   stateData.width = ((terain || [])[0] || []).length || 0;
   stateData.obstractList = stateData.obstractList || getObstacleListFromMap(terain);
-  stateData.obstractMap = new Map(stateData.obstractList.map(e => ([`${e.x},${e.y}`, e])));
+  stateData.obstractMap = stateData.obstractMap || new Map(stateData.obstractList.map(e => ([`${e.x},${e.y}`, e])));
   // 坦克map对象
   stateData.myTankMap = new Map((state.myTank || []).map(e => ([`${e.x},${e.y}`, e])));
   // 我方子弹map对象
@@ -29,7 +29,6 @@ export default function (state) {
 
   // 由总指挥官选定一个目标前进
   const { targetList: commanderOrders } = commander(state, stateData);
-  console.log(commanderOrders);
 
 
   // 发送给坦克车长进行判断
@@ -64,10 +63,5 @@ export default function (state) {
     }
   });
 
-  const nextTankOrder = {};
-  tankOrders.forEach(tankOrder => {
-    nextTankOrder[tankOrder.tank.id] = tankOrder.nextStep;
-  });
-
-  return nextTankOrder;
+  return tankOrders;
 }

@@ -3,12 +3,9 @@ import driver from './driver';
 
 
 export default function (state, stateData, tank, commanderOrders) {
-  const terain = state.terain || [];
   const width = stateData.width;
   const height = stateData.height;
 
-  const obstractList = state.obstractList;
-  const obstractMap = stateData.obstractMap;
   // 获取敌方坦克的方位
   const enemyBulletMap = stateData.enemyBulletMap;
   // 获取我方坦克的方位
@@ -30,7 +27,6 @@ export default function (state, stateData, tank, commanderOrders) {
 
   const { nextStepList: fireEvent } = cannoneer(state, stateData, tank, commanderOrders);
   const { nextStepList: moveEvent } = driver(state, stateData, tank, commanderOrders);
-  console.log('fireEvent', fireEvent);
   const allEvent = [...fireEvent, ...moveEvent];
   const allEffectEvent = allEvent.filter(e => e.weight > 0);
   let nextStep = {};
@@ -44,6 +40,6 @@ export default function (state, stateData, tank, commanderOrders) {
   return {
     type: '',
     tank,
-    nextStep: nextStep.nextStep,
+    nextStep,
   };
 }
