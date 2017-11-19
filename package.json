@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "thrift": "node build-thrift.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,8 @@
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "commander": "^2.11.0",
-    "node-fetch": "^1.7.3"
+    "node-fetch": "^1.7.3",
+    "request": "^2.83.0",
+    "thrift": "^0.10.0"
   }
 }
