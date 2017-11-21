@@ -120,7 +120,7 @@ export default function (state, stateData, tank, commanderOrders) {
       height,
       mapCellList,
     };
-    const path = aStart(tank, theOrder, aStartMapInfo);
+    const path = aStart(tank, theOrder, 1, aStartMapInfo);
 
     // 如果能到达，计算下一步的方向
     if (path && path.length > 1) {

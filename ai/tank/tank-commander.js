@@ -14,16 +14,6 @@ export default function (state, stateData, tank, commanderOrders) {
 
   let nextOrder;
 
-  commanderOrders.every(order => {
-    if (order.tankId === tank.id) {
-      nextOrder = order;
-      return false;
-    } else if (order.tankId === 'ALL') {
-      nextOrder = order;
-      return false;
-    }
-    return true;
-  });
 
   const { nextStepList: fireEvent } = cannoneer(state, stateData, tank, commanderOrders);
   const { nextStepList: moveEvent } = driver(state, stateData, tank, commanderOrders);

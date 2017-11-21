@@ -41,12 +41,25 @@ export default function (state) {
   // 假如一个点包含了2个以上的坦克说明有冲突，此时选择一个放行其他的等一回合
   const nextPositionMap = {};
   tankOrders
-    .filter(tankOrder => tankOrder.nextStep === 'move')
+    .filter(tankOrder => tankOrder.nextStep.nextStep === 'move')
     .filter(tankOrder => tankOrder.tank.path && tankOrder.tank.path.length > 1)
     .forEach(tankOrder => {
       const tank = tankOrder.tank;
-      const nextPoint = tankOrder.tank.path[1];
-      const theIndex = `${nextPoint.x},${nextPoint.y}`;
+      let theIndex = '';
+      switch (tank.direction) {
+        case 'up':
+          theIndex = `${tank.x},${tank.y - 1}`;
+          break;
+        case 'down':
+          theIndex = `${tank.x},${tank.y + 1}`;
+          break;
+        case 'left':
+          theIndex = `${tank.x - 1},${tank.y}`;
+          break;
+        case 'right':
+          theIndex = `${tank.x + 1},${tank.y}`;
+          break;
+      }
       nextPositionMap[theIndex] = nextPositionMap[theIndex] || {};
       nextPositionMap[theIndex][tank.id] = tank;
     });
@@ -55,9 +68,11 @@ export default function (state) {
     if (tanks.length > 1) {
       const minPath = Math.min(...tanks.filter(t => t.path).map(t => t.path.length));
       const minPathTank = tanks.find(t => t.path && t.path.length === minPath);
+      const stayTankMap = new Set(tanks.filter(t => t.id !== minPathTank.id).map(t => t.id));
+
       tankOrders.forEach(o => {
-        if (o.tank.id !== minPathTank.id) {
-          o.nextStep = 'stay';
+        if (stayTankMap.has(o.tank.id)) {
+          o.nextStep.nextStep = 'stay';
         }
       });
     }

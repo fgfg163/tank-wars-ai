@@ -26,7 +26,9 @@
     "babel-register": "^6.26.0",
     "commander": "^2.11.0",
     "node-fetch": "^1.7.3",
-    "request": "^2.83.0",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {
     "thrift": "^0.10.0"
   }
 }

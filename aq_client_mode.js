@@ -8,8 +8,6 @@ program
   .option('-a, --api [n]', 'Game api, will overwrite side and id')
   .parse(process.argv);
 
-console.log(program)
-
 const options = {
   side: program.side,
   gameid: program.id,
@@ -35,6 +33,7 @@ if (options.api) {
       tankOrders.forEach(tankOrder => {
         nextTankOrder[tankOrder.tank.id] = tankOrder.nextStep.nextStep;
       });
+      console.log(nextTankOrder);
 
       state = await fetch(options.api, { method: 'POST', body: JSON.stringify(nextTankOrder) }).then(r => r.json());
       await sleep(500);
