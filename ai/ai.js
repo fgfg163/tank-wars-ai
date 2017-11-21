@@ -32,7 +32,8 @@ export default async gameState => {
 
   // action 队列
   const theActionQuery = [{ type: MAIN_FLOW_INIT }];
-  state.gameState = gameState;
+  state.gameStateHistory = state.gameStateHistory || [];
+  state.gameStateHistory.push(gameState);
   state.gameStateData = gameStateData;
   state.result = {};
   for (let runCount = 0; theActionQuery.length > 0; runCount++) {

@@ -32,6 +32,7 @@ export default state => {
         return makeAction('');
       }
       case COMMON_MAP_MOVE_TO_CENTER: {
+
         return makeAction('');
       }
       default: {
