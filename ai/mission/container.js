@@ -1,0 +1,10 @@
+export const MAIN_FLOW_INIT = 'MAIN_FLOW_INIT';
+export const MAIN_FLOW_START = 'MAIN_FLOW_START';
+
+export const MAP_1_INIT = 'MAP_1_INIT';
+export const MAP_1_START = 'MAP_1_START';
+
+export const COMMON_MAP_INIT = 'COMMON_MAP_INIT';
+export const COMMON_MAP_START = 'COMMON_MAP_START';
+export const COMMON_MAP_MOVE_TO_FLAG = 'COMMON_MAP_MOVE_TO_FLAG';
+export const COMMON_MAP_MOVE_TO_CENTER = 'COMMON_MAP_MOVE_TO_CENTER';

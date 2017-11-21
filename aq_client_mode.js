@@ -27,7 +27,7 @@ if (options.api) {
     let i = 0;
     while (!state.ended) {
       console.log(i++, '--------------------------------');
-      const tankOrders = ai(state);
+      const tankOrders = await ai(state);
 
       const nextTankOrder = {};
       tankOrders.forEach(tankOrder => {
