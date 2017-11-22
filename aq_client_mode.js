@@ -27,11 +27,27 @@ if (options.api) {
     let i = 0;
     while (!state.ended) {
       console.log(i++, '--------------------------------');
+
+      state = {
+        ...state,
+        flagPosition: state.flagWait === 0 ? {
+          x: (state.params || {}).flagX,
+          y: (state.params || {}).flagY,
+        } : null,
+      };
+
       const tankOrders = await ai(state);
 
       const nextTankOrder = {};
       tankOrders.forEach(tankOrder => {
-        nextTankOrder[tankOrder.tank.id] = tankOrder.nextStep.nextStep;
+        console.log(tankOrder);
+        if (tankOrder.nextStep === 'fire') {
+          nextTankOrder[tankOrder.tankId] = `${tankOrder.nextStep}-${tankOrder.direction}`;
+        } else if (tankOrder.nextStep === 'turnTo') {
+          nextTankOrder[tankOrder.tankId] = tankOrder.turnTo;
+        } else {
+          nextTankOrder[tankOrder.tankId] = tankOrder.nextStep;
+        }
       });
       console.log(nextTankOrder);
 

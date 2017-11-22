@@ -17,11 +17,10 @@ export default function (state, commanderOrder) {
   const targetList = bfs(commanderOrder[0], canMoveTank.length, terain);
 
   // 将空地分配给坦克
-  const tankPathList = canMoveTank.map((tank, index) =>
-    Object.assign({}, tank, {
-      target: targetList[index],
-    })
-  );
+  const tankPathList = canMoveTank.map((tank, index) => ({
+    ...tank,
+    target: targetList[index],
+  }));
 
   return {
     type: '',

@@ -1,5 +1,5 @@
 import cannoneer from './cannoneer';
-import driver from './driver';
+import driver from './move-to-point';
 
 
 export default function (state, stateData, tank, commanderOrders) {

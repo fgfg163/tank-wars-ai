@@ -1,2 +1,4 @@
-const ss = [];
-console.log(ss[0]?.a);
+const a = { 1: 1, 2: 2 }
+console.log((() => ({
+  ...a,
+})).toString())

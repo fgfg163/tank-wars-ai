@@ -108,18 +108,20 @@ const server = thrift.createServer(UserService, {
       direction: numToDirection[b.dir],
     }));
 
-    state = Object.assign({}, state, {
+    state = {
+      ...state,
       myTank: newMyTank,
       enemyTank: newEnemyTank,
       myBullet,
       enemyBullet,
       myFlag: yourFlagNo,
       enemyFlag: enemyFlagNo,
-      params: Object.assign({}, state.params, {
-        flagX: (flagPos || {}).y,
-        flagY: (flagPos || {}).x,
-      }),
-    });
+      flagPosition: flagPos ? {
+        ...flagPos,
+        x: flagPos.y,
+        y: flagPos.x,
+      } : null,
+    };
     console.log(Object.assign({}, newState, {
       tanks: newState.tanks.map(t => Object.assign({}, t, { x: t.pos.y, y: t.pos.x, dir: numToDirection[t.dir] })),
       shells: newState.shells.map(s => Object.assign({}, s, { x: s.pos.y, y: s.pos.x, dir: numToDirection[s.dir] })),

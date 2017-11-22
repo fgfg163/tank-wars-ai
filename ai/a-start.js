@@ -5,7 +5,9 @@ const pointGenerator = (startTank, endPoint, weight = 1, lastPoint = null) => {
     direction: startTank.direction,
     lastPoint,
   };
+  // 从起点到这个点的消耗
   point.G = lastPoint ? lastPoint.G + weight : 0;
+  // 到终点的消耗(估算)
   point.H = Math.abs(endPoint.x - startTank.x) + Math.abs(endPoint.y - startTank.y);
   point.F = point.G + point.H;
   return point;
@@ -25,21 +27,46 @@ const findMinFPoint = (list = new Map()) => {
   return { point: minPoint, index: minPointIndex };
 }
 
+const isSamePosition = (point1, point2) => point1.x === point2.x && point1.y === point2.y;
+
 const rangeArray = (start, end) => {
   const arr = Array.from({ length: Math.abs(start - end + 1) });
   return start < end ? arr.map((e, i) => start + i) : arr.map((e, i) => start - i);
 };
 
+const getThePath = (endPoint) => {
+  let thePoint = endPoint;
+  const thePath = [];
+  while (thePoint) {
+    thePath.push(thePoint);
+    thePoint = thePoint.lastPoint;
+  }
+  const resultPath = thePath.reverse().map(e => {
+    delete e.lastPoint;
+    return e;
+  });
+  return resultPath;
+}
 
 // 所有map类型列表的索引格式为`${point.x},${point.y}`，两个坐标数字中间用英文逗号连接
 // mapCellList: 棋盘格子列表，格式为{x:1, y:1, weight:10}。如果没有weight属性则该格子视为障碍物，
 // 有weight属性则视为带权重的格子
 
-export default function (startTank, endPoint, stepLength = 1, { width, height, mapCellList }) {
-  const obstacleList = mapCellList.filter(e => !e.weight);
-  const cellList = mapCellList.filter(e => e.weight);
-  const obstracleMap = new Map(obstacleList.map(e => ([`${e.x},${e.y}`, e])));
-  const cellMap = new Map(cellList.map(e => ([`${e.x},${e.y}`, e])));
+export default function (startTank, endPoint, option) {
+  const {
+    stepLength = 1,
+    stepDeep, // 路线搜索深度
+    turnCost = 1, // 转向权重，即寻路时转向比直行花费更高
+    width,
+    height,
+    obstacleMap = new Map(),
+    mapCellList = [], // 地图格子的列表，一维数组
+  } = option;
+
+
+  const theStepDeep = typeof(stepDeep) === 'number' ? stepDeep : Math.abs(startTank.x - endPoint.x) + Math.abs(startTank.y - endPoint.y) * 2;
+  // 地图格子列表，包括所有带权重的格子
+  const mapCellMap = new Map(mapCellList.map(e => ([`${e.x},${e.y}`, e])));
   // open队列，象的方式方便取索引
   const openListMap = new Map();
   // close队列，做成对象的方式方便取索引
@@ -47,7 +74,9 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
   const theStartTank = pointGenerator(startTank, endPoint);
   openListMap.set(`${theStartTank.x},${theStartTank.y}`, theStartTank);
 
-  while (openListMap.size > 0) {
+  // 路径是否经过终点的标记。如果经过了目标点，则标记为 true。在速度>1的情况下可避免在终点附近来回找终点。
+  let isPassedEndPoint = false;
+  for (let step = 0; openListMap.size > 0 && step < theStepDeep && !isPassedEndPoint; step++) {
     // 从开列表选出F值最小的点，如果F值大小相同就选列表中靠后的
     const {
       point: thePoint,
@@ -62,10 +91,14 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
     let lpList = rangeArray(thePoint.x - 1, thePoint.x - stepLength)
       .map(e => ({ x: e, y: thePoint.y }));
     let lp = null;
-    // 从近到远检测是否撞墙，取撞墙前一格
+    // 从近到远检测是否撞墙，取撞墙前一格。如果此时经过了目标点，则标记一下。
     lpList.some(p => {
-      if (p.x >= 0 && !obstracleMap.has(`${p.x},${p.y}`)) {
-        lp = p
+      if (p.x >= 0 && !obstacleMap.has(`${p.x},${p.y}`)) {
+        lp = p;
+        // 如果经过了终点，则标记一下
+        if (isSamePosition(p, endPoint)) {
+          isPassedEndPoint = true;
+        }
       } else {
         return true;
       }
@@ -74,8 +107,8 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
       const lpIndex = `${lp.x},${lp.y}`;
       if (!closeListMap.has(lpIndex)) {
         lp.direction = 'left';
-        const cellWidget = (cellMap.get(lpIndex) || {}).weight || 0;
-        const directionWidget = thePoint.direction === lp.direction ? 0 : 1;
+        const cellWidget = (mapCellMap.get(lpIndex) || {}).weight || 0;
+        const directionWidget = thePoint.direction === lp.direction ? 0 : turnCost;
         const widget = cellWidget + directionWidget;
         const oldPoint = openListMap.get(lpIndex);
         const newPoint = pointGenerator(lp, endPoint, widget, thePoint);
@@ -85,7 +118,7 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
         if (!oldPoint || oldPoint.F > newPoint.F) {
           openListMap.set(`${newPoint.x},${newPoint.y}`, newPoint);
           // 如果这个点已经是目标点，则停止寻找
-          if (newPoint.H === 0) {
+          if (isSamePosition(newPoint, endPoint)) {
             break;
           }
         }
@@ -97,10 +130,14 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
     let rpList = rangeArray(thePoint.x + 1, thePoint.x + stepLength)
       .map(e => ({ x: e, y: thePoint.y }));
     let rp = null;
-    // 从近到远检测是否撞墙，取撞墙前一格
+    // 从近到远检测是否撞墙，取撞墙前一格。如果此时经过了目标点，则标记一下。
     rpList.some(p => {
-      if (p.x <= width - 1 && !obstracleMap.has(`${p.x},${p.y}`)) {
-        rp = p
+      if (p.x <= width - 1 && !obstacleMap.has(`${p.x},${p.y}`)) {
+        rp = p;
+        // 如果经过了终点，则标记一下
+        if (isSamePosition(p, endPoint)) {
+          isPassedEndPoint = true;
+        }
       } else {
         return true;
       }
@@ -109,8 +146,8 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
       const rpIndex = `${rp.x},${rp.y}`;
       if (!closeListMap.has(rpIndex)) {
         rp.direction = 'right';
-        const cellWidget = (cellMap.get(rpIndex) || {}).weight || 0;
-        const directionWidget = thePoint.direction === rp.direction ? 0 : 1;
+        const cellWidget = (mapCellMap.get(rpIndex) || {}).weight || 0;
+        const directionWidget = thePoint.direction === rp.direction ? 0 : turnCost;
         const widget = cellWidget + directionWidget;
         const oldPoint = openListMap.get(rpIndex);
         const newPoint = pointGenerator(rp, endPoint, widget, thePoint);
@@ -120,7 +157,7 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
         if (!oldPoint || oldPoint.F > newPoint.F) {
           openListMap.set(`${newPoint.x},${newPoint.y}`, newPoint);
           // 如果这个点已经是目标点，则停止寻找
-          if (newPoint.H === 0) {
+          if (isSamePosition(newPoint, endPoint)) {
             break;
           }
         }
@@ -131,10 +168,14 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
     let upList = rangeArray(thePoint.y - 1, thePoint.y - stepLength)
       .map(e => ({ x: thePoint.x, y: e }));
     let up = null;
-    // 从近到远检测是否撞墙，取撞墙前一格
+    // 从近到远检测是否撞墙，取撞墙前一格。如果此时经过了目标点，则标记一下。
     upList.some(p => {
-      if (p.y >= 0 && !obstracleMap.has(`${p.x},${p.y}`)) {
-        up = p
+      if (p.y >= 0 && !obstacleMap.has(`${p.x},${p.y}`)) {
+        up = p;
+        // 如果经过了终点，则标记一下
+        if (isSamePosition(p, endPoint)) {
+          isPassedEndPoint = true;
+        }
       } else {
         return true;
       }
@@ -143,8 +184,8 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
       const upIndex = `${up.x},${up.y}`;
       if (!closeListMap.has(upIndex)) {
         up.direction = 'up';
-        const cellWidget = (cellMap.get(upIndex) || {}).weight || 0;
-        const directionWidget = thePoint.direction === up.direction ? 0 : 1;
+        const cellWidget = (mapCellMap.get(upIndex) || {}).weight || 0;
+        const directionWidget = thePoint.direction === up.direction ? 0 : turnCost;
         const widget = cellWidget + directionWidget;
         const oldPoint = openListMap.get(upIndex);
         const newPoint = pointGenerator(up, endPoint, widget, thePoint);
@@ -154,7 +195,7 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
         if (!oldPoint || oldPoint.F > newPoint.F) {
           openListMap.set(`${newPoint.x},${newPoint.y}`, newPoint);
           // 如果这个点已经是目标点，则停止寻找
-          if (newPoint.H === 0) {
+          if (isSamePosition(newPoint, endPoint)) {
             break;
           }
         }
@@ -165,10 +206,14 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
     let dpList = rangeArray(thePoint.y + 1, thePoint.y + stepLength)
       .map(e => ({ x: thePoint.x, y: e }));
     let dp = null;
-    // 从近到远检测是否撞墙，取撞墙前一格
+    // 从近到远检测是否撞墙，取撞墙前一格。如果此时经过了目标点，则标记一下。
     dpList.some(p => {
-      if (p.y <= height - 1 && !obstracleMap.has(`${p.x},${p.y}`)) {
-        dp = p
+      if (p.y <= height - 1 && !obstacleMap.has(`${p.x},${p.y}`)) {
+        dp = p;
+        // 如果经过了终点，则标记一下
+        if (isSamePosition(p, endPoint)) {
+          isPassedEndPoint = true;
+        }
       } else {
         return true;
       }
@@ -177,8 +222,8 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
       const dpIndex = `${dp.x},${dp.y}`;
       if (!closeListMap.has(dpIndex)) {
         dp.direction = 'down';
-        const cellWidget = (cellMap.get(dpIndex) || {}).weight || 0;
-        const directionWidget = thePoint.direction === dp.direction ? 0 : 1;
+        const cellWidget = (mapCellMap.get(dpIndex) || {}).weight || 0;
+        const directionWidget = thePoint.direction === dp.direction ? 0 : turnCost;
         const widget = cellWidget + directionWidget;
         const oldPoint = openListMap.get(dpIndex);
         const newPoint = pointGenerator(dp, endPoint, widget, thePoint);
@@ -188,7 +233,7 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
         if (!oldPoint || oldPoint.F > newPoint.F) {
           openListMap.set(`${newPoint.x},${newPoint.y}`, newPoint);
           // 如果这个点已经是目标点，则停止寻找
-          if (newPoint.H === 0) {
+          if (isSamePosition(newPoint, endPoint)) {
             break;
           }
         }
@@ -196,34 +241,36 @@ export default function (startTank, endPoint, stepLength = 1, { width, height, m
     }
   }
 
+  const result = {
+    path: null,
+    accurate: null,
+    pass: null,
+    near: null,
+  };
+
   const openList = [...openListMap.values()];
-  let finalPoint = null;
-  if (openList.length > 0 && openList[openList.length - 1].H === 0) {
+  if (openList.length > 0 && isSamePosition(openList[openList.length - 1], endPoint)) {
     // 如果列表最后一个点是终点，说明已找到路线。否则说明无法到达目标
-    finalPoint = openList[openList.length - 1];
+    const finalPoint = openList[openList.length - 1];
+    result.accurate = getThePath(finalPoint);
+  } else if (openList.length > 0 && isPassedEndPoint) {
+    // 如果路径经过了终点，则将这条路径记录下来
+    const finalPoint = openList[openList.length - 1];
+    result.pass = getThePath(finalPoint);
   } else {
-    // 如果无法到达，则寻找一个离目标最近的点
+    // 如果无法在指定步数内到达，则寻找一个离目标最近的点作为目标
     let minDistance;
     let minPoint;
     closeListMap.forEach(p => {
-      const distance = Math.abs(p.x - endPoint.x) + Math.abs(p.y - endPoint.y);
-      if (!minDistance || minDistance > distance) {
-        minDistance = distance;
+      if (!minDistance || minDistance > p.H) {
+        minDistance = p.H;
         minPoint = p;
       }
     });
-    finalPoint = minPoint;
+    result.near = getThePath(minPoint);
   }
+  // path 表示一条可行的路径，其他参数则精确说明他们是哪种路径
+  result.path = result.accurate || result.pass || result.near;
 
-  let thePoint = finalPoint;
-  const thePath = [];
-  while (thePoint) {
-    thePath.push(thePoint);
-    thePoint = thePoint.lastPoint;
-  }
-  const resultPath = thePath.reverse().map(e => {
-    delete e.lastPoint;
-    return e;
-  });
-  return resultPath;
+  return result;
 }
