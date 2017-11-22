@@ -10,18 +10,24 @@ program
   .parse(process.argv);
 
 
-const directionToNum = {
-  up: 1,
-  down: 2,
-  left: 3,
-  right: 4
-};
-const numToDirection = {
-  1: 'up',
-  2: 'down',
-  3: 'left',
-  4: 'right',
-};
+const directionToNum = (() => {
+  const theMap = {
+    up: 1,
+    down: 2,
+    left: 3,
+    right: 4
+  };
+  return direction => theMap[direction] || direction;
+})();
+const numToDirection = (() => {
+  const theMap = {
+    1: 'up',
+    2: 'down',
+    3: 'left',
+    4: 'right',
+  };
+  return direction => theMap[direction] || direction;
+})();
 
 const transGameMap = gamemap => {
   return gamemap;
@@ -88,24 +94,24 @@ const server = thrift.createServer(UserService, {
     const newMyTank = tanks.filter(t => myTankIdMap.has(t.id)).map(t => Object.assign({}, t, {
       x: t.pos.y,
       y: t.pos.x,
-      direction: numToDirection[t.dir],
+      direction: numToDirection(t.dir),
     }));
     const newEnemyTank = tanks.filter(t => !myTankIdMap.has(t.id)).map(t => Object.assign({}, t, {
       x: t.pos.y,
       y: t.pos.x,
-      direction: numToDirection[t.dir],
+      direction: numToDirection(t.dir),
     }));
     const myBullet = shells.filter(b => myTankIdMap.has(b.id)).map(b => Object.assign({}, b, {
       from: b.id,
       x: b.pos.y,
       y: b.pos.x,
-      direction: numToDirection[b.dir],
+      direction: numToDirection(b.dir),
     }));
     const enemyBullet = shells.filter(b => !myTankIdMap.has(b.id)).map(b => Object.assign({}, b, {
       from: b.id,
       x: b.pos.y,
       y: b.pos.x,
-      direction: numToDirection[b.dir],
+      direction: numToDirection(b.dir),
     }));
 
     state = {
@@ -123,8 +129,8 @@ const server = thrift.createServer(UserService, {
       } : null,
     };
     console.log(Object.assign({}, newState, {
-      tanks: newState.tanks.map(t => Object.assign({}, t, { x: t.pos.y, y: t.pos.x, dir: numToDirection[t.dir] })),
-      shells: newState.shells.map(s => Object.assign({}, s, { x: s.pos.y, y: s.pos.x, dir: numToDirection[s.dir] })),
+      tanks: newState.tanks.map(t => Object.assign({}, t, { x: t.pos.y, y: t.pos.x, dir: numToDirection(t.dir) })),
+      shells: newState.shells.map(s => Object.assign({}, s, { x: s.pos.y, y: s.pos.x, dir: numToDirection(s.dir) })),
     }));
     callback();
   },
@@ -134,32 +140,16 @@ const server = thrift.createServer(UserService, {
     tankOrders.forEach(tankOrder => {
       if (tankOrder.nextStep.nextStep !== 'stay') {
         let nextStep = '';
-        switch (tankOrder.nextStep.nextStep) {
-          case 'move':
-            nextStep = 'move';
-            break;
-          case 'right':
-          case 'left':
-          case 'back':
-            nextStep = 'turnTo';
-            break;
-          case 'fire-up':
-          case 'fire-down':
-          case 'fire-left':
-          case 'fire-right':
-            nextStep = 'fire';
-            break;
-        }
 
         nextTankOrder.push({
-          tankId: tankOrder.tank.id,
-          order: nextStep,
-          dir: directionToNum[tankOrder.nextStep.direction],
+          tankId: tankOrder.tankId,
+          order: tankOrder.nextStep,
+          dir: directionToNum(tankOrder.direction),
         });
       }
     });
     console.log(nextTankOrder.map(o => Object.assign({}, o, {
-      dir: numToDirection[o.dir],
+      dir: numToDirection(o.dir),
     })));
     // tankOrders.forEach(tankOrder => console.log(tankOrder.tank));
     callback(null, nextTankOrder);
