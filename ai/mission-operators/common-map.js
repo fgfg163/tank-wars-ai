@@ -61,6 +61,15 @@ export const checkMoveToClosestEnemyCost = (gameState, gameStateData) => {
   const myTank = gameState.myTank;
   const enemyTank = gameState.enemyTank;
   const tankSpeed = (gameState.params || {}).tankSpeed;
+
+  if (enemyTank.length === 0) {
+    return {
+      enemy: null,
+      path: null,
+      distance: 0,
+    };
+  }
+
   // 计算我方坦克到敌方坦克的距离
   const theTank = myTank[0];
   const groupList = checkTankGroupAndGetDistance(gameState, gameStateData, enemyTank);

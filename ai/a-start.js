@@ -5,6 +5,8 @@ const pointGenerator = (startTank, endPoint, weight = 1, lastPoint = null) => {
     direction: startTank.direction,
     lastPoint,
   };
+  // 从起点到这个点的深度
+  point.step = lastPoint ? lastPoint.step + 1 : 0;
   // 从起点到这个点的消耗
   point.G = lastPoint ? lastPoint.G + weight : 0;
   // 到终点的消耗(估算)
@@ -63,6 +65,10 @@ export default function (startTank, endPoint, option) {
     mapCellList = [], // 地图格子的列表，一维数组
   } = option;
 
+  if (isSamePosition(startTank, endPoint)) {
+    return {};
+  }
+
 
   const theStepDeep = typeof(stepDeep) === 'number' ? stepDeep : Math.abs(startTank.x - endPoint.x) + Math.abs(startTank.y - endPoint.y) * 2;
   // 地图格子列表，包括所有带权重的格子
@@ -76,7 +82,7 @@ export default function (startTank, endPoint, option) {
 
   // 路径是否经过终点的标记。如果经过了目标点，则标记为 true。在速度>1的情况下可避免在终点附近来回找终点。
   let isPassedEndPoint = false;
-  for (let step = 0; openListMap.size > 0 && step < theStepDeep && !isPassedEndPoint; step++) {
+  for (let step = 0; openListMap.size > 0 && !isPassedEndPoint; step++) {
     // 从开列表选出F值最小的点，如果F值大小相同就选列表中靠后的
     const {
       point: thePoint,
@@ -84,6 +90,10 @@ export default function (startTank, endPoint, option) {
     // 将这个点从openList移动到closeList
     closeListMap.set(`${thePoint.x},${thePoint.y}`, thePoint);
     openListMap.delete(`${thePoint.x},${thePoint.y}`);
+
+    if (thePoint.step >= theStepDeep) {
+      break;
+    }
 
     // 检查这个点的四周相邻的点
     // 左边
@@ -257,7 +267,7 @@ export default function (startTank, endPoint, option) {
     // 如果路径经过了终点，则将这条路径记录下来
     const finalPoint = openList[openList.length - 1];
     result.pass = getThePath(finalPoint);
-  } else {
+  } else if (closeListMap.size > 1) {
     // 如果无法在指定步数内到达，则寻找一个离目标最近的点作为目标
     let minDistance;
     let minPoint;

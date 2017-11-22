@@ -12,7 +12,9 @@ import {
   COMMON_MAP_CHECK_MAP_SITUATION,
   COMMON_MAP_MOVE_TO_FLAG,
   COMMON_MAP_MOVE_TO_ENEMY,
+  COMMON_MAP_MOVE_TO_CENTER,
   COMMON_MAP_AUTO_FIRE,
+  MAIN_FLOW_AVOID_CONFLICT,
 } from './container'
 
 export default state => {
@@ -28,6 +30,7 @@ export default state => {
         return makeAction(COMMON_MAP_CHECK_MAP_SITUATION);
       }
       case COMMON_MAP_CHECK_MAP_SITUATION: {
+        // 检查棋盘状况，如果有旗子就去抢，如果没有就追着敌方坦克
         const { gameState, gameStateData } = state;
         mainFlow.getFlagCost = checkGetFlagCost(gameState, gameStateData);
         const {
@@ -40,7 +43,7 @@ export default state => {
         if (mainFlow.moveToClosestEnemyCost < mainFlow.getFlagCost) {
           return makeAction(COMMON_MAP_MOVE_TO_FLAG);
         }
-        return makeAction(COMMON_MAP_MOVE_TO_ENEMY);
+        return makeAction(COMMON_MAP_MOVE_TO_CENTER);
       }
       case COMMON_MAP_MOVE_TO_FLAG: {
         const { gameState, gameStateData } = state;
@@ -58,13 +61,23 @@ export default state => {
         });
         return makeAction(COMMON_MAP_AUTO_FIRE);
       }
+      case COMMON_MAP_MOVE_TO_CENTER: {
+        const { gameState, gameStateData } = state;
+        const { myTank } = gameState;
+        const { width, height, } = gameStateData;
+        const center = { x: Math.ceil(width / 2), y: Math.ceil(height / 2) }
+        myTank.forEach(tank => {
+          state.result.push(...moveToPoint(gameState, gameStateData, tank, center));
+        });
+        return makeAction(COMMON_MAP_AUTO_FIRE);
+      }
       case COMMON_MAP_AUTO_FIRE: {
         const { gameState, gameStateData } = state;
         const { myTank } = gameState;
         myTank.forEach(tank => {
           state.result.push(...autoFire(gameState, gameStateData, tank));
         });
-        return makeAction('');
+        return makeAction(MAIN_FLOW_AVOID_CONFLICT);
       }
       default: {
         return '';

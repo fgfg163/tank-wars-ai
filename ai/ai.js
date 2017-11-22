@@ -1,6 +1,7 @@
 import { getObstacleListFromMap } from './utils/map-tools'
 import createMissions from './mission-creator/index'
 import missions from './mission/index'
+import { getNextStepInfo } from './cal-history'
 import { MAIN_FLOW_INIT } from './mission/container'
 
 const state = {};
@@ -67,6 +68,7 @@ export default async gameState => {
   gameStateData.obstacleMap = gameStateData.obstacleMap || new Map(gameStateData.obstacleList.map(e => ([`${e.x},${e.y}`, e])));
   // 坦克map对象
   gameStateData.myTankMap = new Map((gameState.myTank || []).map(e => ([`${e.x},${e.y}`, e])));
+  gameStateData.myTankOfIdMap = new Map((gameState.myTank || []).map(e => ([e.id, e])));
   // 我方子弹map对象
   gameStateData.myBulletMap = new Map((gameState.myBullet || []).map(e => ([`${e.x},${e.y}`, e])));
   // 我方子弹以坦克ID索引的map对象
@@ -78,8 +80,7 @@ export default async gameState => {
   // 旗子的位置，如果出现旗子则 flagPosition 不为空
   gameStateData.flagPosition = gameState.flagPosition;
 
-
-  // 计算子弹飞行区域
+  gameStateData.bulletHistory = getNextStepInfo(gameState, gameStateData);
 
   // 计算敌人射击区域
 

@@ -135,24 +135,33 @@ const server = thrift.createServer(UserService, {
     callback();
   },
   getNewOrders: function (callback) {
-    const tankOrders = ai(state);
-    const nextTankOrder = [];
-    tankOrders.forEach(tankOrder => {
-      if (tankOrder.nextStep.nextStep !== 'stay') {
-        let nextStep = '';
+    (async () => {
+      const nextStepList = await ai(state);
+      console.log(nextStepList);
+      const nextTankOrder = [];
+      nextStepList.forEach(tankOrder => {
+        if (tankOrder.nextStep.nextStep !== 'stay') {
+          let nextStep = '';
 
-        nextTankOrder.push({
-          tankId: tankOrder.tankId,
-          order: tankOrder.nextStep,
-          dir: directionToNum(tankOrder.direction),
-        });
-      }
+          nextTankOrder.push({
+            tankId: tankOrder.tankId,
+            order: tankOrder.nextStep,
+            dir: directionToNum(tankOrder.direction),
+          });
+        }
+      });
+
+      console.log(nextTankOrder.map(o => ({
+        ...o,
+        dir: numToDirection(o.dir),
+      })));
+      // tankOrders.forEach(tankOrder => console.log(tankOrder.tank));
+      callback(null, nextTankOrder);
+    })().catch(e => {
+      setTimeout(() => {
+        throw e;
+      }, 0)
     });
-    console.log(nextTankOrder.map(o => Object.assign({}, o, {
-      dir: numToDirection(o.dir),
-    })));
-    // tankOrders.forEach(tankOrder => console.log(tankOrder.tank));
-    callback(null, nextTankOrder);
   },
 });
 

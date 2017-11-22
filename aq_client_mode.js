@@ -52,7 +52,7 @@ if (options.api) {
       console.log(nextTankOrder);
 
       state = await fetch(options.api, { method: 'POST', body: JSON.stringify(nextTankOrder) }).then(r => r.json());
-      await sleep(500);
+      await sleep(10);
     }
   })().catch(e => {
     setTimeout(() => {
