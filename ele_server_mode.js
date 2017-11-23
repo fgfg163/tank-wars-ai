@@ -55,60 +55,69 @@ const defaultState = {
   ended: false,
 };
 
-let state = Object.assign({}, defaultState);
+let state = { ...defaultState };
 
 const server = thrift.createServer(UserService, {
   uploadMap: function (gamemap, callback) {
-    state = Object.assign({}, defaultState, {
+    state = {
+      ...defaultState,
       terain: transGameMap(gamemap || []),
-    });
+    };
     initAi();
     console.log(gamemap);
     callback();
   },
   uploadParamters: function (arg, callback) {
     const { tankSpeed, shellSpeed, tankHP, tankScore, flagScore, maxRound, roundTimeoutInMs } = arg;
-    state = Object.assign({}, state, {
-      params: Object.assign({}, state.params, {
+    state = {
+      ...state,
+      params: {
+        ...state.params,
         tankSpeed,
         shellSpeed,
+        bulletSpeed: shellSpeed,
         tankHP,
         tankScore,
         flagScore,
         maxRound,
         roundTimeoutInMs,
-      }),
-    });
+      },
+    };
     callback();
   },
   assignTanks: function (tanks, callback) {
     const myTank = tanks || [];
     const myTankIdMap = new Set(myTank);
-    state = Object.assign({}, state, {
+    state = {
+      ...state,
       myTankIdMap,
-    });
+    };
     callback();
   },
   latestState: function (newState, callback) {
     const { tanks, shells, yourFlagNo, enemyFlagNo, flagPos } = newState;
     const { myTankIdMap } = state;
-    const newMyTank = tanks.filter(t => myTankIdMap.has(t.id)).map(t => Object.assign({}, t, {
+    const newMyTank = tanks.filter(t => myTankIdMap.has(t.id)).map(t => ({
+      ...t,
       x: t.pos.y,
       y: t.pos.x,
       direction: numToDirection(t.dir),
     }));
-    const newEnemyTank = tanks.filter(t => !myTankIdMap.has(t.id)).map(t => Object.assign({}, t, {
+    const newEnemyTank = tanks.filter(t => !myTankIdMap.has(t.id)).map(t => ({
+      ...t,
       x: t.pos.y,
       y: t.pos.x,
       direction: numToDirection(t.dir),
     }));
-    const myBullet = shells.filter(b => myTankIdMap.has(b.id)).map(b => Object.assign({}, b, {
+    const myBullet = shells.filter(b => myTankIdMap.has(b.id)).map(b => ({
+      ...b,
       from: b.id,
       x: b.pos.y,
       y: b.pos.x,
       direction: numToDirection(b.dir),
     }));
-    const enemyBullet = shells.filter(b => !myTankIdMap.has(b.id)).map(b => Object.assign({}, b, {
+    const enemyBullet = shells.filter(b => !myTankIdMap.has(b.id)).map(b => ({
+      ...b,
       from: b.id,
       x: b.pos.y,
       y: b.pos.x,
@@ -129,10 +138,11 @@ const server = thrift.createServer(UserService, {
         y: flagPos.x,
       } : null,
     };
-    console.log(Object.assign({}, newState, {
-      tanks: newState.tanks.map(t => Object.assign({}, t, { x: t.pos.y, y: t.pos.x, dir: numToDirection(t.dir) })),
-      shells: newState.shells.map(s => Object.assign({}, s, { x: s.pos.y, y: s.pos.x, dir: numToDirection(s.dir) })),
-    }));
+    console.log({
+      ...newState,
+      tanks: newState.tanks.map(t => ({ ...t, x: t.pos.y, y: t.pos.x, dir: numToDirection(t.dir) })),
+      shells: newState.shells.map(s => ({ ...s, x: s.pos.y, y: s.pos.x, dir: numToDirection(s.dir) })),
+    });
     callback();
   },
   getNewOrders: function (callback) {

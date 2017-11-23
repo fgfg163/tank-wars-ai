@@ -12,7 +12,6 @@ export default state => {
       case MAP_1_INIT:
         return makeAction(MAP_1_START);
       case MAP_1_START:
-        console.log('haha');
 
         return makeAction('');
       default:

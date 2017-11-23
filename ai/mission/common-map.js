@@ -39,7 +39,6 @@ export default state => {
         } = checkMoveToClosestEnemyCost(gameState, gameStateData);
         mainFlow.moveToClosestEnemyCost = moveToClosestEnemyCost;
         mainFlow.closestEnemy = closestEnemy;
-        console.log(mainFlow);
         if (mainFlow.moveToClosestEnemyCost === 0 && mainFlow.getFlagCost === 0) {
           return makeAction(COMMON_MAP_MOVE_TO_CENTER);
         } else if (mainFlow.moveToClosestEnemyCost < mainFlow.getFlagCost) {

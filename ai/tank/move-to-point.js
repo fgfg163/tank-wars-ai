@@ -82,8 +82,6 @@ export default function (gameState, gameStateData, tank, moveTo) {
     mapCellList: myTankPositionWithWeight,
   });
 
-  console.log('path', path);
-
   // 如果能到达，计算下一步的方向
   if (path && path.length > 1) {
     // 检测前方是否已经被其他坦克堵死了

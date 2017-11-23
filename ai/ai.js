@@ -3,6 +3,7 @@ import createMissions from './mission-creator/index'
 import missions from './mission/index'
 import { getNextStepInfo } from './cal-history'
 import { MAIN_FLOW_INIT } from './mission/container'
+import { forecastBullet, forecastTank } from './tank/forecast'
 
 let missionStore = createMissions(missions, {});
 
@@ -89,8 +90,21 @@ export const ai = async gameState => {
 
   gameStateData.bulletHistory = getNextStepInfo(gameState, gameStateData);
 
-  // 计算敌人射击区域
-
+  // 预测子弹移动和危险区域
+  // 预测坦克移动
+  const bulletPosition = forecastBullet(gameState, gameStateData, 3);
+  const tankPosiblePosition = forecastTank(gameState, gameStateData, 3);
+  const forcastList = [];
+  for (let key = 0; ; key++) {
+    if (!bulletPosition[key] && !tankPosiblePosition[key]) {
+      break;
+    }
+    forcastList.push({
+      ...(bulletPosition[key] || {}),
+      ...(tankPosiblePosition[key] || {}),
+    });
+  }
+  gameStateData.forcastList = forcastList;
 
   // action 队列
   const theActionQuery = [{ type: MAIN_FLOW_INIT }];
