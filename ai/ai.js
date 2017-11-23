@@ -88,8 +88,6 @@ export const ai = async gameState => {
   // 旗子的位置，如果出现旗子则 flagPosition 不为空
   gameStateData.flagPosition = gameState.flagPosition;
 
-  gameStateData.bulletHistory = getNextStepInfo(gameState, gameStateData);
-
   // 预测子弹移动和危险区域
   // 预测坦克移动
   const bulletPosition = forecastBullet(gameState, gameStateData, 3);
@@ -120,7 +118,6 @@ export const ai = async gameState => {
     // 执行一个 action
     if (action.type) {
       const newAction = await missionStore.next(action);
-      console.log('newAction', newAction);
       if (typeof (newAction) === 'object') {
         if (newAction.addToStart) {
           theActionQuery.unshift(newAction);

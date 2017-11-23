@@ -225,12 +225,59 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
       }
     });
 
+    // 将坦克出现概率分别划分到每个格子里
+    const myTankProbabilityMap = new Map();
+    newMyTank.forEach(t => {
+      const index = `${t.x},${t.y}`;
+      if (myTankProbabilityMap.has(index)) {
+        const tank = myTankProbabilityMap.get(index);
+        myTankProbabilityMap.set(index, {
+          ...tank,
+          probability: t.probability + tank.probability,
+        });
+      } else {
+        myTankProbabilityMap.set(index, t);
+      }
+    });
+    // 将坦克出现概率分别划分到每个格子里
+    const enemyTankProbabilityMap = new Map();
+    newEnemyTank.forEach(t => {
+      const index = `${t.x},${t.y}`;
+      if (enemyTankProbabilityMap.has(index)) {
+        const tank = enemyTankProbabilityMap.get(index);
+        enemyTankProbabilityMap.set(index, {
+          ...tank,
+          probability: t.probability + tank.probability,
+        });
+      } else {
+        enemyTankProbabilityMap.set(index, t);
+      }
+    });
+    // 将坦克危险区域概率分别划分到每个格子里
+    const enemyTankDangerAreaProbabilityMap = new Map();
+    newEnemyTankDangerArea.forEach(t => {
+      const index = `${t.x},${t.y}`;
+      if (enemyTankDangerAreaProbabilityMap.has(index)) {
+        const tank = enemyTankDangerAreaProbabilityMap.get(index);
+        enemyTankDangerAreaProbabilityMap.set(index, {
+          ...tank,
+          probability: t.probability + tank.probability,
+        });
+      } else {
+        enemyTankDangerAreaProbabilityMap.set(index, t);
+      }
+    });
+
     futureList.push({
       myTank: newMyTank,
+      myTankProbabilityMap,
       enemyTank: newEnemyTank,
+      enemyTankProbabilityMap,
       enemyTankDangerArea: newEnemyTankDangerArea,
+      enemyTankDangerAreaProbabilityMap,
     });
   }
+  // 移除第一组内容，因为第一组内容是现在坦克状况
   futureList.shift();
   return futureList;
 }
@@ -357,15 +404,19 @@ export const forecastBullet = (gameState, gameStateData, roundNum = 1) => {
         dangerArea: newDangerArea,
       } = getBulletNextPosition(bullet, bulletSpeed, gameStateData);
       if (newPosition) {
-        newMyBullet.push(...newPosition);
-        newMyBulletDangerArea.push(...newDangerArea);
+        newEnemyBullet.push(...newPosition);
+        newEnemyBulletDangerArea.push(...newDangerArea);
       }
     });
     futureList.push({
       myBullet: newMyBullet,
-      myBulletDangerArea: newMyBullet,
+      myBulletMap: new Map(newMyBullet.map(b => ([`${b.x},${b.y}`, b]))),
+      myBulletDangerArea: newMyBulletDangerArea,
+      myBulletDangerAreaMap: new Map(newMyBulletDangerArea.map(b => ([`${b.x},${b.y}`, b]))),
       enemyBullet: newEnemyBullet,
-      enemyBulletDangerArea: newEnemyBullet,
+      enemyBulletMap: new Map(newEnemyBullet.map(b => ([`${b.x},${b.y}`, b]))),
+      enemyBulletDangerArea: newEnemyBulletDangerArea,
+      enemyBulletDangerAreaMap: new Map(newEnemyBulletDangerArea.map(b => ([`${b.x},${b.y}`, b]))),
     });
   }
   // 去掉开头一个集合，因为第一个集合是本回合的情况
