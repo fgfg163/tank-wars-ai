@@ -106,7 +106,7 @@ export default function (gameState, gameStateData, tank, moveTo) {
           tankId: tank.id,
           nextStep: 'move',
           direction: tank.direction,
-          weight: 100,
+          weight: 10,
         });
       } else {
         let turnTo = '';
@@ -135,7 +135,7 @@ export default function (gameState, gameStateData, tank, moveTo) {
           nextStep: 'turnTo',
           turnTo,
           direction: nextPointDirection,
-          weight: 100,
+          weight: 10,
         });
       }
     }

@@ -3,7 +3,7 @@ import { ai } from './ai/ai';
 
 program
   .version('0.0.1')
-  .option('-s, --side [n]', 'Red or Blue')
+  .option('-s, --side [n]', 'red or blue', 'blue')
   .option('-i, --id [n]', 'Game id')
   .option('-a, --api [n]', 'Game api, will overwrite side and id')
   .parse(process.argv);

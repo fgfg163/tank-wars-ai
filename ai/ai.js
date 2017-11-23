@@ -121,6 +121,7 @@ export const ai = async gameState => {
     }
   }
 
+  // 将相同坦克相同操作的权重合并起来
   const nextStepMap = new Map();
   state.result.forEach(e => {
     const theIndex = `${e.tankId},${e.nextStep},${e.direction}`;
@@ -128,6 +129,7 @@ export const ai = async gameState => {
       const oldStep = nextStepMap.get(theIndex);
       nextStepMap.set(theIndex, {
         ...oldStep,
+        ...e,
         weight: oldStep.weight + e.weight,
       });
     } else {
@@ -135,7 +137,21 @@ export const ai = async gameState => {
     }
   });
 
-  let nextStepList = [...nextStepMap.values()];
+  // 每个坦克选出一个权重最高的操作
+  const nextStepMap2 = new Map();
+  nextStepMap.forEach(e => {
+    const theIndex = e.tankId;
+    if (nextStepMap2.has(theIndex)) {
+      const oldStep = nextStepMap2.get(theIndex);
+      if (oldStep.weight < e.weight) {
+        nextStepMap2.set(theIndex, e);
+      }
+      return;
+    }
+    nextStepMap2.set(theIndex, e);
+  });
+
+  let nextStepList = [...nextStepMap2.values()];
   // 返回结果前再将坦克和操作反转回去
   if (isNeedReverseMap) {
     nextStepList = nextStepList.map(e => ({

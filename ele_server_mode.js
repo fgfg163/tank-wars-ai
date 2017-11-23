@@ -154,7 +154,7 @@ const server = thrift.createServer(UserService, {
 
       console.log(nextTankOrder.map(o => ({
         ...o,
-        dir: numToDirection(o.dir),
+        direction: numToDirection(o.dir),
       })));
       // tankOrders.forEach(tankOrder => console.log(tankOrder.tank));
       callback(null, nextTankOrder);
