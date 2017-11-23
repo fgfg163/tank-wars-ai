@@ -2,7 +2,7 @@ import thrift from 'thrift'
 import program from 'commander';
 import UserService from './gen-nodejs/PlayerServer.js'
 import ttypes from './gen-nodejs/player_types'
-import ai from './ai/ai';
+import { initAi, ai } from './ai/ai';
 
 program
   .version('0.0.1')
@@ -62,6 +62,7 @@ const server = thrift.createServer(UserService, {
     state = Object.assign({}, defaultState, {
       terain: transGameMap(gamemap || []),
     });
+    initAi();
     console.log(gamemap);
     callback();
   },

@@ -39,11 +39,12 @@ export default state => {
         } = checkMoveToClosestEnemyCost(gameState, gameStateData);
         mainFlow.moveToClosestEnemyCost = moveToClosestEnemyCost;
         mainFlow.closestEnemy = closestEnemy;
-
-        if (mainFlow.moveToClosestEnemyCost < mainFlow.getFlagCost) {
+        if (mainFlow.moveToClosestEnemyCost === 0 && mainFlow.getFlagCost === 0) {
+          return makeAction(COMMON_MAP_MOVE_TO_CENTER);
+        } else if (mainFlow.moveToClosestEnemyCost < mainFlow.getFlagCost) {
           return makeAction(COMMON_MAP_MOVE_TO_FLAG);
         }
-        return makeAction(COMMON_MAP_MOVE_TO_CENTER);
+        return makeAction(COMMON_MAP_MOVE_TO_ENEMY);
       }
       case COMMON_MAP_MOVE_TO_FLAG: {
         const { gameState, gameStateData } = state;
@@ -65,7 +66,7 @@ export default state => {
         const { gameState, gameStateData } = state;
         const { myTank } = gameState;
         const { width, height, } = gameStateData;
-        const center = { x: Math.ceil(width / 2), y: Math.ceil(height / 2) }
+        const center = { x: Math.floor(width / 2), y: Math.floor(height / 2) }
         myTank.forEach(tank => {
           state.result.push(...moveToPoint(gameState, gameStateData, tank, center));
         });

@@ -1,5 +1,5 @@
 import program from 'commander';
-import ai from './ai/ai';
+import { ai } from './ai/ai';
 
 program
   .version('0.0.1')

@@ -4,8 +4,7 @@ import missions from './mission/index'
 import { getNextStepInfo } from './cal-history'
 import { MAIN_FLOW_INIT } from './mission/container'
 
-const state = {};
-const missionStore = createMissions(missions, state);
+let missionStore = createMissions(missions, {});
 
 
 const directionReverse = (() => {
@@ -18,10 +17,14 @@ const directionReverse = (() => {
   return direction => theMap[direction] || direction;
 })();
 
+export const initAi = () => {
+  missionStore = createMissions(missions, {});
+}
 
-export default async gameState => {
+export const ai = async gameState => {
   // 分析数据
 
+  const state = missionStore.getState();
   // 处理地图数据，将二维数组转换为点数组和map对象
   const terain = gameState.terain || [];
   const gameStateData = {};
@@ -31,7 +34,11 @@ export default async gameState => {
   gameStateData.width = width;
 
   // 反转地图位置，让我方坦克始终在左上角
-  const isNeedReverseMap = gameState.myTank.map(t => t.y < width / 2 ? 0 : 1).reduce((a, b) => a + b) > (gameState.myTank || []).length / 2;
+  state.isNeedReverseMap = typeof(state.isNeedReverseMap) === 'boolean' ?
+    state.isNeedReverseMap
+    : gameState.myTank.map(t => t.y < width / 2 ? 0 : 1).reduce((a, b) => a + b) > (gameState.myTank || []).length / 2;
+
+  const isNeedReverseMap = state.isNeedReverseMap;
   if (isNeedReverseMap) {
     const myTank = (gameState.myTank || []).map(t => ({
       ...t,
@@ -139,59 +146,3 @@ export default async gameState => {
 
   return nextStepList;
 };
-
-
-// const myTank = state.myTank || [];
-// // 由总指挥官选定一个目标前进
-// const { targetList: commanderOrders } = commander(state, gameStateData);
-//
-//
-// // 发送给坦克车长进行判断
-// const tankOrders = myTank.map(tank => {
-//   return tankCommander(state, gameStateData, tank, commanderOrders);
-// });
-//
-// // 检查各个坦克下一步是否冲突
-// // nextPositionMap 记录了每个“下一步位置”包含多少坦克
-// // 假如一个点包含了2个以上的坦克说明有冲突，此时选择一个放行其他的等一回合
-// const nextPositionMap = {};
-// tankOrders
-//   .filter(tankOrder => tankOrder.nextStep.nextStep === 'move')
-//   .filter(tankOrder => tankOrder.tank.path && tankOrder.tank.path.length > 1)
-//   .forEach(tankOrder => {
-//     const tank = tankOrder.tank;
-//     let theIndex = '';
-//     switch (tank.direction) {
-//       case 'up':
-//         theIndex = `${tank.x},${tank.y - 1}`;
-//         break;
-//       case 'down':
-//         theIndex = `${tank.x},${tank.y + 1}`;
-//         break;
-//       case 'left':
-//         theIndex = `${tank.x - 1},${tank.y}`;
-//         break;
-//       case 'right':
-//         theIndex = `${tank.x + 1},${tank.y}`;
-//         break;
-//     }
-//     nextPositionMap[theIndex] = nextPositionMap[theIndex] || {};
-//     nextPositionMap[theIndex][tank.id] = tank;
-//   });
-// Object.values(nextPositionMap).forEach(tanksOnAPoint => {
-//   const tanks = Object.values(tanksOnAPoint);
-//   if (tanks.length > 1) {
-//     const minPath = Math.min(...tanks.filter(t => t.path).map(t => t.path.length));
-//     const minPathTank = tanks.find(t => t.path && t.path.length === minPath);
-//     const stayTankMap = new Set(tanks.filter(t => t.id !== minPathTank.id).map(t => t.id));
-//
-//     tankOrders.forEach(o => {
-//       if (stayTankMap.has(o.tank.id)) {
-//         o.nextStep.nextStep = 'stay';
-//       }
-//     });
-//   }
-// });
-//
-//   return tankOrders;
-// }
