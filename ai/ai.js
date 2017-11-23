@@ -103,6 +103,10 @@ export const ai = async gameState => {
     });
   }
   gameStateData.forcastList = forcastList;
+  console.log({
+    myTank: forcastList[0].myTank,
+    myTankProbabilityMap: forcastList[0].myTankProbabilityMap,
+  })
 
   // action 队列
   const theActionQuery = [{ type: MAIN_FLOW_INIT }];
@@ -157,9 +161,9 @@ export const ai = async gameState => {
       if (oldStep.weight < e.weight) {
         nextStepMap2.set(theIndex, e);
       }
-      return;
+    } else if (e.weight > 0) {
+      nextStepMap2.set(theIndex, e);
     }
-    nextStepMap2.set(theIndex, e);
   });
 
   let nextStepList = [...nextStepMap2.values()];

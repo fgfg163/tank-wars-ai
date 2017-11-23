@@ -3,6 +3,8 @@ import { rangeArray } from '../utils/map-tools';
 export default function (gameState, gameStateData, tank) {
   const {
     obstacleMap,
+    myTankMap,
+    enemyTankMap,
     myBulletOfTankMap,
     width,
     height,
@@ -103,7 +105,29 @@ export default function (gameState, gameStateData, tank) {
           });
         }
       } else {
-        // 三回合以外的地方不检测
+        // 三回合以外的地方
+        // 如果有友军
+        if (myTankMap.has(theIndex)) {
+          const theNextTank = myTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'down',
+            weight: -100 * probability - distance,
+          });
+        }
+        // 如果有敌人
+        if (enemyTankMap.has(theIndex)) {
+          const theNextTank = enemyTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'down',
+            weight: 100 * probability - distance,
+          });
+        }
         return true;
       }
     });
@@ -194,7 +218,29 @@ export default function (gameState, gameStateData, tank) {
           });
         }
       } else {
-        // 三回合以外的地方不检测
+        // 三回合以外的地方
+        // 如果有友军
+        if (myTankMap.has(theIndex)) {
+          const theNextTank = myTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'down',
+            weight: -100 * probability - distance,
+          });
+        }
+        // 如果有敌人
+        if (enemyTankMap.has(theIndex)) {
+          const theNextTank = enemyTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'down',
+            weight: 100 * probability - distance,
+          });
+        }
         return true;
       }
     });
@@ -285,7 +331,29 @@ export default function (gameState, gameStateData, tank) {
           });
         }
       } else {
-        // 三回合以外的地方不检测
+        // 三回合以外的地方
+        // 如果有友军
+        if (myTankMap.has(theIndex)) {
+          const theNextTank = myTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'left',
+            weight: -100 * probability - distance,
+          });
+        }
+        // 如果有敌人
+        if (enemyTankMap.has(theIndex)) {
+          const theNextTank = enemyTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'left',
+            weight: 100 * probability - distance,
+          });
+        }
         return true;
       }
     });
@@ -376,11 +444,33 @@ export default function (gameState, gameStateData, tank) {
           });
         }
       } else {
-        // 三回合以外的地方不检测
+        // 三回合以外的地方
+        // 如果有友军
+        if (myTankMap.has(theIndex)) {
+          const theNextTank = myTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'right',
+            weight: -100 * probability - distance,
+          });
+        }
+        // 如果有敌人
+        if (enemyTankMap.has(theIndex)) {
+          const theNextTank = enemyTankMap.get(theIndex);
+          const probability = theNextTank.probability || 1;
+          nextStepList.push({
+            tankId: tank.id,
+            nextStep: 'fire',
+            direction: 'right',
+            weight: 100 * probability - distance,
+          });
+        }
         return true;
       }
     });
   }
-
+  console.log(nextStepList);
   return nextStepList;
 }

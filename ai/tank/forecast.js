@@ -81,17 +81,17 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
       });
       position.push({
         ...tank,
+        direction: 'up',
+        probability: nowProbability * probabilityOfTankOption('turnTo') / 3,
+      });
+      position.push({
+        ...tank,
         direction: 'left',
         probability: nowProbability * probabilityOfTankOption('turnTo') / 3,
       });
       position.push({
         ...tank,
         direction: 'right',
-        probability: nowProbability * probabilityOfTankOption('turnTo') / 3,
-      });
-      position.push({
-        ...tank,
-        direction: 'down',
         probability: nowProbability * probabilityOfTankOption('turnTo') / 3,
       });
       break;
@@ -119,7 +119,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
       });
       position.push({
         ...tank,
-        direction: 'left',
+        direction: 'top',
         probability: nowProbability * probabilityOfTankOption('turnTo') / 3,
       });
       position.push({
@@ -157,12 +157,12 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
       });
       position.push({
         ...tank,
-        direction: 'left',
+        direction: 'top',
         probability: nowProbability * probabilityOfTankOption('turnTo') / 3,
       });
       position.push({
         ...tank,
-        direction: 'right',
+        direction: 'left',
         probability: nowProbability * probabilityOfTankOption('turnTo') / 3,
       });
       position.push({
