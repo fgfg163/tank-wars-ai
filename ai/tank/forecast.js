@@ -15,6 +15,7 @@ const probabilityOfTankOption = (() => {
 const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
   const { obstacleMap, width, height } = gameStateData;
   const position = [];
+  const pathPosition = [];
   const dangerArea = [];
   const nowProbability = tank.probability || 1;
   switch (tank.direction) {
@@ -28,6 +29,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
               y: theY,
               probability: nowProbability * probabilityOfTankOption('move'),
             };
+            pathPosition.push(tankPosition);
           } else {
             return true;
           }
@@ -68,6 +70,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
               y: theY,
               probability: nowProbability * probabilityOfTankOption('move'),
             };
+            pathPosition.push(tankPosition);
           } else {
             return true;
           }
@@ -106,6 +109,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
               x: theX,
               probability: nowProbability * probabilityOfTankOption('move'),
             };
+            pathPosition.push(tankPosition);
           } else {
             return true;
           }
@@ -144,6 +148,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
               x: theX,
               probability: nowProbability * probabilityOfTankOption('move'),
             };
+            pathPosition.push(tankPosition);
           } else {
             return true;
           }
@@ -173,7 +178,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
       break;
     }
   }
-  return { position, dangerArea };
+  return { position, dangerArea, pathPosition };
 };
 
 // 预测坦克n回合后的位置
@@ -201,27 +206,33 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
       enemyTank: nowEnemyTank,
     } = futureList[futureList.length - 1];
     const newMyTank = [];
+    const newMyTankPath = [];
     const newMyTankDangerArea = [];
     const newEnemyTank = [];
     const newEnemyTankDangerArea = [];
+    const newEnemyTankPath = [];
     nowMyTank.forEach(tank => {
       const {
         position: newPosition,
         dangerArea: newDangerArea,
+        pathPosition: newPathPosition,
       } = getTankNextPosition(tank, tankSpeed, gameStateData);
       if (newPosition) {
         newMyTank.push(...newPosition);
         newMyTankDangerArea.push(...newDangerArea);
+        newMyTankPath.push(...newPathPosition);
       }
     });
     nowEnemyTank.forEach(tank => {
       const {
         position: newPosition,
         dangerArea: newDangerArea,
+        pathPosition: newPathPosition,
       } = getTankNextPosition(tank, tankSpeed, gameStateData);
       if (newPosition) {
         newEnemyTank.push(...newPosition);
         newEnemyTankDangerArea.push(...newDangerArea);
+        newEnemyTankPath.push(...newPathPosition);
       }
     });
 
@@ -239,7 +250,31 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
         myTankProbabilityMap.set(index, t);
       }
     });
-    // 将坦克出现概率分别划分到每个格子里
+    // 将坦克每回合所在位置分类到每个格子里，不把概率加起来是因为方便使用时剔除自己
+    const myTankMap = new Map();
+    newMyTank.forEach(t => {
+      const index = `${t.x},${t.y}`;
+      if (myTankMap.has(index)) {
+        const tankList = myTankMap.get(index);
+        tankList.push(t);
+        myTankMap.set(index, tankList);
+      } else {
+        myTankMap.set(index, [t]);
+      }
+    });
+    // 将坦克经过的位置分别分类到每个格子里，用于计算坦克撞子弹的概率，不把概率加起来是因为方便使用时剔除自己
+    const myTankPathMap = new Map();
+    newMyTankPath.forEach(t => {
+      const index = `${t.x},${t.y}`;
+      if (myTankMap.has(index)) {
+        const tankList = myTankMap.get(index);
+        tankList.push(t);
+        myTankMap.set(index, tankList);
+      } else {
+        myTankMap.set(index, [t]);
+      }
+    });
+    // 将坦克出现概率分别分类到每个格子里，用于计算子弹射中坦克的概率
     const enemyTankProbabilityMap = new Map();
     newEnemyTank.forEach(t => {
       const index = `${t.x},${t.y}`;
@@ -251,6 +286,20 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
         });
       } else {
         enemyTankProbabilityMap.set(index, t);
+      }
+    });
+    // 将坦克经过的位置的概率分别分类到每个格子里，用于计算坦克撞子弹的概率
+    const enemyTankPathProbabilityMap = new Map();
+    newEnemyTankPath.forEach(t => {
+      const index = `${t.x},${t.y}`;
+      if (enemyTankPathProbabilityMap.has(index)) {
+        const tank = enemyTankPathProbabilityMap.get(index);
+        enemyTankPathProbabilityMap.set(index, {
+          ...tank,
+          probability: t.probability + tank.probability,
+        });
+      } else {
+        enemyTankPathProbabilityMap.set(index, t);
       }
     });
     // 将坦克危险区域概率分别划分到每个格子里
@@ -270,9 +319,12 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
 
     futureList.push({
       myTank: newMyTank,
+      myTankMap,
+      myTankPathMap,
       myTankProbabilityMap,
       enemyTank: newEnemyTank,
       enemyTankProbabilityMap,
+      enemyTankPathProbabilityMap,
       enemyTankDangerArea: newEnemyTankDangerArea,
       enemyTankDangerAreaProbabilityMap,
     });
@@ -367,11 +419,6 @@ export const forecastBullet = (gameState, gameStateData, roundNum = 1) => {
     myBullet,
     enemyBullet,
   } = gameState;
-  const {
-    width,
-    height,
-    obstacleMap,
-  } = gameStateData;
   const { bulletSpeed } = gameState.params;
 
   futureList.push({
