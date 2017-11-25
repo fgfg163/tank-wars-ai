@@ -1,4 +1,4 @@
-import aStart from '../a-start';
+import * as aStart from '../a-start';
 
 // 下一个点在当前点的方向，相对地图的方向
 const getNextPointDirection = (nowPoint, nextPoint) => {
@@ -74,7 +74,7 @@ export default function (gameState, gameStateData, tank, moveTo) {
   }));
 
   // 计算路线
-  const { path } = aStart(tank, moveTo, {
+  const { path } = aStart.toPoint(tank, moveTo, {
     stepLength: 1,
     width,
     height,
@@ -93,51 +93,18 @@ export default function (gameState, gameStateData, tank, moveTo) {
     });
     // 如果前方没被堵死
     if (pathHasTankCount < path.length - 1) {
-
-      // 取下一步的点。path[0]表示出发点
-      // 计算下一步操作
-      const nowPoint = path[0];
-      const nextPoint = path[1];
-      const nextPointDirection = getNextPointDirection(nowPoint, nextPoint);
-      if (tank.direction === nextPointDirection) {
-        nextStepList.push({
-          tankId: tank.id,
-          nextStep: 'move',
-          direction: tank.direction,
-          weight: 10,
-        });
-      } else {
-        let turnTo = '';
-        switch (`${tank.direction},${getNextPointDirection(nowPoint, nextPoint)}`) {
-          case 'up,left':
-          case 'left,down':
-          case 'down,right':
-          case 'right,up':
-            turnTo = 'left';
-            break;
-          case 'up,right':
-          case 'left,up':
-          case 'down,left':
-          case 'right,down':
-            turnTo = 'right';
-            break;
-          case 'up,down':
-          case 'left,right':
-          case 'down,up':
-          case 'right,left':
-            turnTo = 'back';
-            break;
-        }
-        nextStepList.push({
-          tankId: tank.id,
-          nextStep: 'turnTo',
-          turnTo,
-          direction: nextPointDirection,
-          weight: 10,
-        });
-      }
+      const operatorList = aStart.getOperatorListFromPath(path, 1);
+      const nextStep = operatorList[0];
+      nextStepList.push({
+        tankId: tank.id,
+        nextStep: nextStep.nextStep,
+        ...(nextStep.turnTo ? { turnTo: nextStep.turnTo } : {}),
+        direction: nextStep.direction,
+        weight: 10,
+      });
+      gameStateData.tankOperatorList[tank.id] = operatorList;
     }
-    tank.path = path;
+    gameStateData.tankPath[tank.id] = path;
   }
 
   return nextStepList;

@@ -188,17 +188,6 @@ const calTank = (theIndex, distance, tank, direction, myTankMap, enemyTankMap, n
         weight: -100 * probability - distance,
       });
     }
-    // 如果有敌人
-    if (enemyTankMap.has(theIndex)) {
-      const theNextTank = enemyTankMap.get(theIndex);
-      const probability = theNextTank.probability || 1;
-      nextStepList.push({
-        tankId: tank.id,
-        nextStep: 'fire',
-        direction: direction,
-        weight: 100 * probability - distance,
-      });
-    }
     return true;
   }
 };
@@ -262,6 +251,6 @@ export default (gameState, gameStateData, tank) => {
       return calTank(theIndex, distance, tank, 'right', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
     });
   }
-  console.log(nextStepList);
+  console.log(nextStepList)
   return nextStepList;
 }

@@ -21,7 +21,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
   switch (tank.direction) {
     case 'up': {
       let tankPosition;
-      rangeArray(tank.y - 1, tank.y - tankSpeed)
+      rangeArray(tank.y, tank.y - tankSpeed)
         .some(theY => {
           if (theY >= 0 && !obstacleMap.has(`${tank.x},${theY}`)) {
             tankPosition = {
@@ -34,9 +34,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
             return true;
           }
         });
-      if (tankPosition) {
-        position.push(tankPosition);
-      }
+      position.push(tankPosition);
       position.push({
         ...tank,
         direction: 'up',
@@ -62,7 +60,8 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
     }
     case 'down': {
       let tankPosition;
-      rangeArray(tank.y + 1, tank.y + tankSpeed)
+      // 坦克起点也算一个经过位置
+      rangeArray(tank.y, tank.y + tankSpeed)
         .some(theY => {
           if (theY <= height - 1 && !obstacleMap.has(`${tank.x},${theY}`)) {
             tankPosition = {
@@ -75,9 +74,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
             return true;
           }
         });
-      if (tankPosition) {
-        position.push(tankPosition);
-      }
+      position.push(tankPosition);
       position.push({
         ...tank,
         probability: nowProbability * probabilityOfTankOption('stay'),
@@ -101,7 +98,8 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
     }
     case 'left': {
       let tankPosition;
-      rangeArray(tank.x - 1, tank.x - tankSpeed)
+      // 坦克起点也算一个经过位置
+      rangeArray(tank.x, tank.x - tankSpeed)
         .some(theX => {
           if (theX >= 0 && !obstacleMap.has(`${theX},${tank.y}`)) {
             tankPosition = {
@@ -114,9 +112,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
             return true;
           }
         });
-      if (tankPosition) {
-        position.push(tankPosition);
-      }
+      position.push(tankPosition);
       position.push({
         ...tank,
         probability: nowProbability * probabilityOfTankOption('stay'),
@@ -140,7 +136,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
     }
     case 'right': {
       let tankPosition;
-      rangeArray(tank.x + 1, tank.x + tankSpeed)
+      rangeArray(tank.x, tank.x + tankSpeed)
         .some(theX => {
           if (theX >= 0 && !obstacleMap.has(`${theX},${tank.y}`)) {
             tankPosition = {
@@ -153,9 +149,7 @@ const getTankNextPosition = (tank, tankSpeed, gameStateData) => {
             return true;
           }
         });
-      if (tankPosition) {
-        position.push(tankPosition);
-      }
+      position.push(tankPosition);
       position.push({
         ...tank,
         probability: nowProbability * probabilityOfTankOption('stay'),
@@ -217,11 +211,9 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
         dangerArea: newDangerArea,
         pathPosition: newPathPosition,
       } = getTankNextPosition(tank, tankSpeed, gameStateData);
-      if (newPosition) {
-        newMyTank.push(...newPosition);
-        newMyTankDangerArea.push(...newDangerArea);
-        newMyTankPath.push(...newPathPosition);
-      }
+      newMyTank.push(...newPosition);
+      newMyTankDangerArea.push(...newDangerArea);
+      newMyTankPath.push(...newPathPosition);
     });
     nowEnemyTank.forEach(tank => {
       const {
@@ -229,11 +221,9 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
         dangerArea: newDangerArea,
         pathPosition: newPathPosition,
       } = getTankNextPosition(tank, tankSpeed, gameStateData);
-      if (newPosition) {
-        newEnemyTank.push(...newPosition);
-        newEnemyTankDangerArea.push(...newDangerArea);
-        newEnemyTankPath.push(...newPathPosition);
-      }
+      newEnemyTank.push(...newPosition);
+      newEnemyTankDangerArea.push(...newDangerArea);
+      newEnemyTankPath.push(...newPathPosition);
     });
 
     // 将坦克出现概率分别划分到每个格子里
@@ -320,6 +310,7 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
     futureList.push({
       myTank: newMyTank,
       myTankMap,
+      myTankPath: newMyTankPath,
       myTankPathMap,
       myTankProbabilityMap,
       enemyTank: newEnemyTank,
@@ -339,7 +330,7 @@ export const forecastTank = (gameState, gameStateData, roundNum = 1) => {
 const getBulletNextPosition = (bullet, bulletSpeed, gameStateData) => {
   const { obstacleMap, width, height } = gameStateData;
   const position = [];
-  const dangerArea = [];
+  const pathPosition = [];
   switch (bullet.direction) {
     case 'up': {
       let bulletPosition;
@@ -348,7 +339,7 @@ const getBulletNextPosition = (bullet, bulletSpeed, gameStateData) => {
           if (theY >= 0 && !obstacleMap.has(`${bullet.x},${theY}`)) {
             const p = { ...bullet, y: theY };
             bulletPosition = p;
-            dangerArea.push(p);
+            pathPosition.push(p);
           } else {
             return true;
           }
@@ -365,7 +356,7 @@ const getBulletNextPosition = (bullet, bulletSpeed, gameStateData) => {
           if (theY <= height - 1 && !obstacleMap.has(`${bullet.x},${theY}`)) {
             const p = { ...bullet, y: theY };
             bulletPosition = p;
-            dangerArea.push(p);
+            pathPosition.push(p);
           } else {
             return true;
           }
@@ -382,7 +373,7 @@ const getBulletNextPosition = (bullet, bulletSpeed, gameStateData) => {
           if (theX >= 0 && !obstacleMap.has(`${theX},${bullet.y}`)) {
             const p = { ...bullet, x: theX };
             bulletPosition = p;
-            dangerArea.push(p);
+            pathPosition.push(p);
           } else {
             return true;
           }
@@ -399,7 +390,7 @@ const getBulletNextPosition = (bullet, bulletSpeed, gameStateData) => {
           if (theX >= 0 && !obstacleMap.has(`${theX},${bullet.y}`)) {
             const p = { ...bullet, x: theX };
             bulletPosition = p;
-            dangerArea.push(p);
+            pathPosition.push(p);
           } else {
             return true;
           }
@@ -410,7 +401,7 @@ const getBulletNextPosition = (bullet, bulletSpeed, gameStateData) => {
       break;
     }
   }
-  return { position, dangerArea };
+  return { position, pathPosition };
 };
 // 预测子弹n回合后的位置
 export const forecastBullet = (gameState, gameStateData, roundNum = 1) => {
@@ -433,37 +424,33 @@ export const forecastBullet = (gameState, gameStateData, roundNum = 1) => {
     } = futureList[futureList.length - 1];
     const newMyBullet = [];
     const newEnemyBullet = [];
-    const newMyBulletDangerArea = [];
-    const newEnemyBulletDangerArea = [];
+    const newMyBulletPath = [];
+    const newEnemyBulletPath = [];
     nowMyBullet.forEach(bullet => {
       const {
         position: newPosition,
-        dangerArea: newDangerArea,
+        pathPosition: newPath,
       } = getBulletNextPosition(bullet, bulletSpeed, gameStateData);
-      if (newPosition) {
-        newMyBullet.push(...newPosition);
-        newMyBulletDangerArea.push(...newDangerArea);
-      }
+      newMyBullet.push(...newPosition);
+      newMyBulletPath.push(...newPath);
     });
     nowEnemyBullet.forEach(bullet => {
       const {
         position: newPosition,
-        dangerArea: newDangerArea,
+        pathPosition: newPath,
       } = getBulletNextPosition(bullet, bulletSpeed, gameStateData);
-      if (newPosition) {
-        newEnemyBullet.push(...newPosition);
-        newEnemyBulletDangerArea.push(...newDangerArea);
-      }
+      newEnemyBullet.push(...newPosition);
+      newEnemyBulletPath.push(...newPath);
     });
     futureList.push({
       myBullet: newMyBullet,
       myBulletMap: new Map(newMyBullet.map(b => ([`${b.x},${b.y}`, b]))),
-      myBulletDangerArea: newMyBulletDangerArea,
-      myBulletDangerAreaMap: new Map(newMyBulletDangerArea.map(b => ([`${b.x},${b.y}`, b]))),
+      myBulletPath: newMyBulletPath,
+      myBulletPathMap: new Map(newMyBulletPath.map(b => ([`${b.x},${b.y}`, b]))),
       enemyBullet: newEnemyBullet,
       enemyBulletMap: new Map(newEnemyBullet.map(b => ([`${b.x},${b.y}`, b]))),
-      enemyBulletDangerArea: newEnemyBulletDangerArea,
-      enemyBulletDangerAreaMap: new Map(newEnemyBulletDangerArea.map(b => ([`${b.x},${b.y}`, b]))),
+      enemyBulletPath: newEnemyBulletPath,
+      enemyBulletPathMap: new Map(newEnemyBulletPath.map(b => ([`${b.x},${b.y}`, b]))),
     });
   }
   // 去掉开头一个集合，因为第一个集合是本回合的情况

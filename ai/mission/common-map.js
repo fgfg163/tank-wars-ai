@@ -1,6 +1,7 @@
 import makeAction from './make-action'
 import moveToPoint from '../tank/move-to-point'
 import autoFire from '../tank/auto-fire'
+import dodgeBullet from '../tank/dodge-bullet'
 import {
   checkGetFlagCost,
   checkMoveToClosestEnemyCost,
@@ -14,6 +15,7 @@ import {
   COMMON_MAP_MOVE_TO_ENEMY,
   COMMON_MAP_MOVE_TO_CENTER,
   COMMON_MAP_AUTO_FIRE,
+  COMMON_MAP_DODGE_BULLET,
   MAIN_FLOW_AVOID_CONFLICT,
 } from './container'
 
@@ -77,6 +79,14 @@ export default state => {
         const { myTank } = gameState;
         myTank.forEach(tank => {
           state.result.push(...autoFire(gameState, gameStateData, tank));
+        });
+        return makeAction(COMMON_MAP_DODGE_BULLET);
+      }
+      case COMMON_MAP_DODGE_BULLET: {
+        const { gameState, gameStateData } = state;
+        const { myTank } = gameState;
+        myTank.forEach(tank => {
+          state.result.push(...dodgeBullet(gameState, gameStateData, tank));
         });
         return makeAction(MAIN_FLOW_AVOID_CONFLICT);
       }

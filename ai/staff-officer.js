@@ -1,4 +1,4 @@
-import aStart from './a-start';
+import * as aStart from './a-start';
 import bfs from './bfs';
 
 export default function (state, commanderOrder) {
@@ -8,7 +8,7 @@ export default function (state, commanderOrder) {
   // 确定坦克都能到达目标点
   const canMoveTank = [];
   myTank.forEach(tank => {
-    const thePath = aStart({ x: tank.x, y: tank.y }, commanderOrder[0], terain);
+    const thePath = aStart.toPoint({ x: tank.x, y: tank.y }, commanderOrder[0], terain);
     if (thePath) {
       canMoveTank.push(tank);
     }

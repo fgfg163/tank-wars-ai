@@ -49,8 +49,8 @@ export default state => {
         Object.values(nextPositionConflictMap).forEach(tanksOnAPoint => {
           const tanks = Object.values(tanksOnAPoint);
           if (tanks.length > 1) {
-            const minPath = Math.min(...tanks.filter(t => t.path).map(t => t.path.length));
-            const minPathTank = tanks.find(t => t.path && t.path.length === minPath);
+            const minPath = Math.min(...tanks.filter(t => gameStateData.tankPath[t.id]).map(t => gameStateData.tankPath[t.id].length));
+            const minPathTank = tanks.find(t => gameStateData.tankPath[t.id] && gameStateData.tankPath[t.id].length === minPath);
             const stayTankMap = new Set(tanks.filter(t => t.id !== minPathTank.id).map(t => t.id));
 
             newTankOrders = newTankOrders.map(order => {

@@ -1,4 +1,4 @@
-import aStart from '../a-start'
+import * as aStart from '../a-start'
 
 export const defaultOperat = () => true
 
@@ -11,7 +11,7 @@ export const checkGetFlagCost = (gameState, gameStateData) => {
     // 计算我方坦克到旗子的距离
     const theTank = myTank[0];
 
-    const { pass: thePath } = aStart(theTank, flagPosition, {
+    const { pass: thePath } = aStart.toPoint(theTank, flagPosition, {
       stepLength: tankSpeed,
       width: gameStateData.width,
       height: gameStateData.height,
@@ -38,7 +38,7 @@ const checkTankGroupAndGetDistance = (gameState, gameStateData, tanks) => {
     theGroup.push(theTank);
     const checkList = [...openList];
     checkList.forEach(otherTank => {
-      const { accurate: thePath } = aStart(theTank, otherTank, {
+      const { accurate: thePath } = aStart.toPoint(theTank, otherTank, {
         turnCost: 0,
         stepDeep: 3,
         width: gameStateData.width,
@@ -75,7 +75,7 @@ export const checkMoveToClosestEnemyCost = (gameState, gameStateData) => {
   const groupList = checkTankGroupAndGetDistance(gameState, gameStateData, enemyTank);
   const distanceList = [];
   groupList.forEach(enemyGroup => {
-    const { path: thePath } = aStart(theTank, enemyGroup[0], {
+    const { path: thePath } = aStart.toPoint(theTank, enemyGroup[0], {
       width: gameStateData.width,
       height: gameStateData.height,
       obstacleMap: gameStateData.obstacleMap,

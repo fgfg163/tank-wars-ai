@@ -50,11 +50,29 @@ const getThePath = (endPoint) => {
   return resultPath;
 }
 
+// 下一个点在当前点的方向，相对地图的方向
+const getNextPointDirection = (nowPoint, nextPoint) => {
+  if (nowPoint.x === nextPoint.x && nowPoint.y > nextPoint.y) {
+    // 下一步在当前位置的上方
+    return 'up';
+  } else if (nowPoint.x === nextPoint.x && nowPoint.y < nextPoint.y) {
+    // 下一步在当前位置的下方
+    return 'down';
+  } else if (nowPoint.x > nextPoint.x && nowPoint.y === nextPoint.y) {
+    // 下一步在当前位置的左方
+    return 'left';
+  } else if (nowPoint.x < nextPoint.x && nowPoint.y === nextPoint.y) {
+    // 下一步在当前位置的右方
+    return 'right';
+  }
+  return '';
+};
+
 // 所有map类型列表的索引格式为`${point.x},${point.y}`，两个坐标数字中间用英文逗号连接
 // mapCellList: 棋盘格子列表，格式为{x:1, y:1, weight:10}。如果没有weight属性则该格子视为障碍物，
 // 有weight属性则视为带权重的格子
 
-export default function (startTank, endPoint, option) {
+export const toPoint = (startTank, endPoint, option) => {
   const {
     stepLength = 1,
     stepDeep, // 路线搜索深度
@@ -283,4 +301,62 @@ export default function (startTank, endPoint, option) {
   result.path = result.accurate || result.pass || result.near;
 
   return result;
+}
+
+export const getOperatorListFromPath = (path, limit) => {
+  if (!path) {
+    throw 'path is null';
+  }
+  if (path.length === 0) {
+    return path;
+  }
+  const operatorList = [];
+  if (path.length > 1) {
+    for (let key = 0; key < path.length - 1 && (!limit || key < limit); key++) {
+      const nowPoint = path[key];
+      const nextPoint = path[key + 1];
+
+      if (nowPoint.direction !== nextPoint.direction) {
+        let turnTo = '';
+        switch (`${nowPoint.direction},${nextPoint.direction}`) {
+          case 'up,left':
+          case 'left,down':
+          case 'down,right':
+          case 'right,up':
+            turnTo = 'left';
+            break;
+          case 'up,right':
+          case 'left,up':
+          case 'down,left':
+          case 'right,down':
+            turnTo = 'right';
+            break;
+          case 'up,down':
+          case 'left,right':
+          case 'down,up':
+          case 'right,left':
+            turnTo = 'back';
+            break;
+        }
+        operatorList.push({
+          ...nowPoint,
+          nextStep: 'turnTo',
+          turnTo,
+        });
+        operatorList.push({
+          ...nowPoint,
+          nextStep: 'move',
+          direction: nextPoint.direction,
+        });
+
+      } else {
+        operatorList.push({
+          ...nowPoint,
+          nextStep: 'move',
+        });
+      }
+    }
+    operatorList.push({ ...path[path.length - 1] });
+  }
+  return operatorList;
 }

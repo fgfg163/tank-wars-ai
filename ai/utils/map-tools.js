@@ -43,3 +43,10 @@ export const isTanksInArea = function (point1, point2, tanksList) {
   }
   return false;
 }
+
+export const pointStr = (point, pointy) => {
+  if (pointy === undefined || pointy === null) {
+    return `${point.x},${point.y}`;
+  }
+  return `${point},${pointy}`;
+}
