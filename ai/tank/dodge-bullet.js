@@ -78,8 +78,6 @@ export default (gameState, gameStateData, tank) => {
       // 我方坦克下回合被敌方子弹击中，立刻向子弹来的方向开炮
       if (enemyBulletMap.has(`${tank.x},${tank.y}`) || enemyBulletPathMap.has(`${tank.x},${tank.y}`)) {
         const bullet = enemyBulletMap.get(`${tank.x},${tank.y}`) || enemyBulletPathMap.get(`${tank.x},${tank.y}`);
-        console.log('bullet1', bullet)
-        console.log('bullet1', getReverseDirection(bullet.direction))
         nextStepList.push({
           tankId: tank.id,
           nextStep: 'fire',
@@ -96,8 +94,6 @@ export default (gameState, gameStateData, tank) => {
       // 我方坦克会在移动之前被子弹击中，立刻向子弹来的方向开炮
       if (enemyBulletMap.has(`${nowPosition.x},${nowPosition.y}`) || enemyBulletPathMap.has(`${nowPosition.x},${nowPosition.y}`)) {
         const bullet = enemyBulletMap.get(`${nowPosition.x},${nowPosition.y}`) || enemyBulletPathMap.get(`${nowPosition.x},${nowPosition.y}`);
-        console.log('bullet2', bullet)
-        console.log('bullet2', getReverseDirection(bullet.direction))
         nextStepList.push({
           tankId: tank.id,
           nextStep: 'fire',
@@ -114,12 +110,10 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'stay',
             direction: tank.direction,
-            weight: 100,
+            weight: 6000,
           });
         } else {
           // 子弹和坦克方向是水平的，立刻向子弹来的方向开炮
-          console.log('bullet3', bullet)
-          console.log('bullet3', getReverseDirection(bullet.direction))
           nextStepList.push({
             tankId: tank.id,
             nextStep: 'fire',
@@ -162,7 +156,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'move',
             direction: tank.direction,
-            weight: 100,
+            weight: 6000,
           });
         } else {
           // 我方坦克方向与子弹方向是水平的，就立刻开炮
@@ -170,7 +164,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'fire',
             direction: getReverseDirection(bullet.direction),
-            weight: 100,
+            weight: 6000,
           });
         }
       }
@@ -185,8 +179,6 @@ export default (gameState, gameStateData, tank) => {
           const bullet = enemyBulletMap.get(`${nowPosition.x},${nowPosition.y}`) || enemyBulletPathMap.get(`${nowPosition.x},${nowPosition.y}`);
           if (isVerticalDirection(tank.direction, bullet.direction)) {
             // 我方坦克方向与子弹方向是垂直的，就移动一步
-            console.log('bullet4', tank)
-            console.log('bullet4', tank.direction)
             nextStepList.push({
               tankId: tank.id,
               nextStep: 'move',
@@ -195,8 +187,6 @@ export default (gameState, gameStateData, tank) => {
             });
           } else {
             // 我方坦克方向与子弹方向是水平的，就立刻开炮
-            console.log('bullet5', bullet)
-            console.log('bullet5', getReverseDirection(bullet.direction))
             nextStepList.push({
               tankId: tank.id,
               nextStep: 'fire',
@@ -213,7 +203,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'stay',
             direction: tank.direction,
-            weight: 100,
+            weight: 6000,
           });
         }
       }
@@ -230,7 +220,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'move',
             direction: tank.direction,
-            weight: 100,
+            weight: 6000,
           });
         } else {
           // 坦克方向与子弹方向垂直，则向右转
@@ -238,7 +228,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'turnTo',
             direction: getLeftDirection(tank.direction),
-            weight: 100,
+            weight: 6000,
           });
         }
       }
@@ -248,8 +238,6 @@ export default (gameState, gameStateData, tank) => {
         if (isVerticalDirection(tank.direction, bullet.direction)) {
         } else {
           // 子弹和坦克方向是水平的，向右转
-          console.log('bullet6', bullet)
-          console.log('bullet6', getRightDirection(bullet.direction))
           nextStepList.push({
             tankId: tank.id,
             nextStep: 'fire',
@@ -279,7 +267,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'move',
             direction: tank.direction,
-            weight: 100,
+            weight: 6000,
           });
         } else {
           // 我方坦克方向与子弹方向是水平的，就向右转
@@ -287,7 +275,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'turnTo',
             direction: getRightDirection(bullet.direction),
-            weight: 100,
+            weight: 6000,
           });
         }
       }
@@ -302,8 +290,6 @@ export default (gameState, gameStateData, tank) => {
           const bullet = enemyBulletMap.get(`${nowPosition.x},${nowPosition.y}`) || enemyBulletPathMap.get(`${nowPosition.x},${nowPosition.y}`);
           if (isVerticalDirection(tank.direction, bullet.direction)) {
             // 坦克方向与子弹方向垂直，则移动一步
-            console.log('bullet7', bullet)
-            console.log('bullet7', getReverseDirection(bullet.direction))
             nextStepList.push({
               tankId: tank.id,
               nextStep: 'fire',
@@ -328,7 +314,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'stay',
             direction: tank.direction,
-            weight: 100,
+            weight: 6000,
           });
         }
       }
@@ -345,7 +331,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'move',
             direction: tank.direction,
-            weight: 100,
+            weight: 6000,
           });
         } else {
           // 坦克方向与子弹方向垂直，则向右转
@@ -353,7 +339,7 @@ export default (gameState, gameStateData, tank) => {
             tankId: tank.id,
             nextStep: 'turnTo',
             direction: getLeftDirection(tank.direction),
-            weight: 100,
+            weight: 6000,
           });
         }
       }
@@ -373,7 +359,6 @@ export default (gameState, gameStateData, tank) => {
       }
     }
   })();
-
-  console.log(nextStepList)
+  console.log('dodge nextStepList', nextStepList)
   return nextStepList;
 }

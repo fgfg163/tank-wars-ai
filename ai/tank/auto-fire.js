@@ -251,6 +251,6 @@ export default (gameState, gameStateData, tank) => {
       return calTank(theIndex, distance, tank, 'right', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
     });
   }
-  console.log(nextStepList)
+  console.log('autofire nextStepList', nextStepList)
   return nextStepList;
 }
