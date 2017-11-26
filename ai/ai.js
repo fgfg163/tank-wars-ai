@@ -3,7 +3,10 @@ import createMissions from './mission-creator/index'
 import missions from './mission/index'
 import { getNextStepInfo } from './cal-history'
 import { MAIN_FLOW_INIT } from './mission/container'
+import avoidConflict from './avoid-conflict'
 import { forecastBullet, forecastTank } from './tank/forecast'
+import dodgeBullet from './tank/dodge-bullet'
+import autoFire from './tank/auto-fire'
 
 let missionStore = createMissions(missions, {});
 
@@ -89,49 +92,37 @@ export const ai = async gameState => {
   // 旗子的位置，如果出现旗子则 flagPosition 不为空
   gameStateData.flagPosition = gameState.flagPosition;
 
-  // 预测子弹移动和危险区域
-  // 预测坦克移动
-  const bulletPosition = forecastBullet(gameState, gameStateData, 3);
-  const tankPosiblePosition = forecastTank(gameState, gameStateData, 3);
-  const forcastList = [];
-  for (let key = 0; ; key++) {
-    if (!bulletPosition[key] && !tankPosiblePosition[key]) {
-      break;
-    }
-    forcastList.push({
-      ...(bulletPosition[key] || {}),
-      ...(tankPosiblePosition[key] || {}),
-    });
-  }
-  gameStateData.forcastList = forcastList;
+  const autoFireResult = autoFire(gameState, gameStateData);
+  const dodgeBulletResult = dodgeBullet(gameState, gameStateData);
 
-  // action 队列
-  const theActionQuery = [{ type: MAIN_FLOW_INIT }];
-  state.gameState = gameState;
-  state.gameStateData = gameStateData;
-  state.result = [];
-  for (let runCount = 0; theActionQuery.length > 0; runCount++) {
-    const action = theActionQuery[0];
-    // 如果这个 action 是初始 action 则将其放入队列尾部保证队列能一直进行
-    if (action.isBase) {
-      theActionQuery.push(action);
-    }
-    // 执行一个 action
-    if (action.type) {
-      const newAction = await missionStore.next(action);
-      if (typeof (newAction) === 'object') {
-        if (newAction.addToStart) {
-          theActionQuery.unshift(newAction);
-        } else {
-          theActionQuery[0] = newAction;
-        }
-      } else {
-        theActionQuery.shift();
-      }
-    } else {
-      theActionQuery.shift();
-    }
-  }
+  // // action 队列
+  // const theActionQuery = [{ type: MAIN_FLOW_INIT }];
+  // state.gameState = gameState;
+  // state.gameStateData = gameStateData;
+  // state.result = [];
+  // for (let runCount = 0; theActionQuery.length > 0; runCount++) {
+  //   const action = theActionQuery[0];
+  //   // 如果这个 action 是初始 action 则将其放入队列尾部保证队列能一直进行
+  //   if (action.isBase) {
+  //     theActionQuery.push(action);
+  //   }
+  //   // 执行一个 action
+  //   if (action.type) {
+  //     const newAction = await missionStore.next(action);
+  //     if (typeof (newAction) === 'object') {
+  //       if (newAction.addToStart) {
+  //         theActionQuery.unshift(newAction);
+  //       } else {
+  //         theActionQuery[0] = newAction;
+  //       }
+  //     } else {
+  //       theActionQuery.shift();
+  //     }
+  //   } else {
+  //     theActionQuery.shift();
+  //   }
+  // }
+  state.result = avoidConflict(gameStateData.myTankOfIdMap, state.result)
 
   // 将相同坦克相同操作的权重合并起来
   const nextStepMap = new Map();

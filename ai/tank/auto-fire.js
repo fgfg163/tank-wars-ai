@@ -192,7 +192,7 @@ const calTank = (theIndex, distance, tank, direction, myTankMap, enemyTankMap, n
   }
 };
 
-export default (gameState, gameStateData, tank) => {
+export default (gameState, gameStateData) => {
   const {
     obstacleMap,
     myTankMap,
@@ -202,54 +202,56 @@ export default (gameState, gameStateData, tank) => {
     height,
     forcastList,
   } = gameStateData;
+  const { myTank } = gameState;
   const { bulletSpeed } = gameState.params;
 
 
   let nextStepList = [];
-
-  // 如果本坦克有炮弹在地图上，就不进行开炮
-  if (!myBulletOfTankMap.has(tank.id)) {
-    // 扫描坦克横竖直线上，未来3回合是否有敌人
-    // 上方
-    rangeArray(tank.y - 1, 0).some((theY, index) => {
-      const distance = index + 1;
-      // 如果扫描到了障碍物，则停止扫描
-      const theIndex = `${tank.x},${theY}`;
-      if (obstacleMap.has(theIndex)) {
-        return true;
-      }
-      return calTank(theIndex, distance, tank, 'up', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
-    });
-    // 下方
-    rangeArray(tank.y + 1, height - 1).some((theY, index) => {
-      const distance = index + 1;
-      // 如果扫描到了障碍物，则停止扫描
-      const theIndex = `${tank.x},${theY}`;
-      if (obstacleMap.has(theIndex)) {
-        return true;
-      }
-      return calTank(theIndex, distance, tank, 'down', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
-    });
-    // 左方
-    rangeArray(tank.x - 1, 0).some((theX, index) => {
-      const distance = index + 1;
-      // 如果扫描到了障碍物，则停止扫描
-      const theIndex = `${theX},${tank.y}`;
-      if (obstacleMap.has(theIndex)) {
-        return true;
-      }
-      return calTank(theIndex, distance, tank, 'left', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
-    });
-    // 右方
-    rangeArray(tank.x + 1, width - 1).some((theX, index) => {
-      const distance = index + 1;
-      // 如果扫描到了障碍物，则停止扫描
-      const theIndex = `${theX},${tank.y}`;
-      if (obstacleMap.has(theIndex)) {
-        return true;
-      }
-      return calTank(theIndex, distance, tank, 'right', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
-    });
-  }
+  myTank.forEach(tank => {
+    // 如果本坦克有炮弹在地图上，就不进行开炮
+    if (!myBulletOfTankMap.has(tank.id)) {
+      // 扫描坦克横竖直线上，未来3回合是否有敌人
+      // 上方
+      rangeArray(tank.y - 1, 0).some((theY, index) => {
+        const distance = index + 1;
+        // 如果扫描到了障碍物，则停止扫描
+        const theIndex = `${tank.x},${theY}`;
+        if (obstacleMap.has(theIndex)) {
+          return true;
+        }
+        return calTank(theIndex, distance, tank, 'up', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
+      });
+      // 下方
+      rangeArray(tank.y + 1, height - 1).some((theY, index) => {
+        const distance = index + 1;
+        // 如果扫描到了障碍物，则停止扫描
+        const theIndex = `${tank.x},${theY}`;
+        if (obstacleMap.has(theIndex)) {
+          return true;
+        }
+        return calTank(theIndex, distance, tank, 'down', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
+      });
+      // 左方
+      rangeArray(tank.x - 1, 0).some((theX, index) => {
+        const distance = index + 1;
+        // 如果扫描到了障碍物，则停止扫描
+        const theIndex = `${theX},${tank.y}`;
+        if (obstacleMap.has(theIndex)) {
+          return true;
+        }
+        return calTank(theIndex, distance, tank, 'left', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
+      });
+      // 右方
+      rangeArray(tank.x + 1, width - 1).some((theX, index) => {
+        const distance = index + 1;
+        // 如果扫描到了障碍物，则停止扫描
+        const theIndex = `${theX},${tank.y}`;
+        if (obstacleMap.has(theIndex)) {
+          return true;
+        }
+        return calTank(theIndex, distance, tank, 'right', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
+      });
+    }
+  });
   return nextStepList;
 }
