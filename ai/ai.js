@@ -33,8 +33,7 @@ export const ai = async gameState => {
   gameStateData.height = height;
   const width = ((terain || [])[0] || []).length || 0;
   gameStateData.width = width;
-  gameStateData.tankPath = {};
-  gameStateData.tankOperatorList = {};
+  gameStateData.myTankPath = {};
 
   // 反转地图位置，让我方坦克始终在左上角
   state.isNeedReverseMap = typeof(state.isNeedReverseMap) === 'boolean' ?

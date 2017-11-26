@@ -94,17 +94,16 @@ export default function (gameState, gameStateData, tank, moveTo) {
     // 如果前方没被堵死
     if (pathHasTankCount < path.length - 1) {
       const operatorList = aStart.getOperatorListFromPath(path, 1);
-      const nextStep = operatorList[0];
+      const [nextStep, nextStep2] = operatorList;
       nextStepList.push({
         tankId: tank.id,
         nextStep: nextStep.nextStep,
         ...(nextStep.turnTo ? { turnTo: nextStep.turnTo } : {}),
-        direction: nextStep.direction,
+        direction: nextStep2 ? nextStep2.direction : nextStep.direction,
         weight: 10,
       });
-      gameStateData.tankOperatorList[tank.id] = operatorList;
     }
-    gameStateData.tankPath[tank.id] = path;
+    gameStateData.myTankPath[tank.id] = path;
   }
 
   return nextStepList;

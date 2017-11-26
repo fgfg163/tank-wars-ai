@@ -135,17 +135,17 @@ const calTank = (theIndex, distance, tank, direction, myTankMap, enemyTankMap, n
       }
     }
     // 如果有敌人
-    const enemyTankProbabilityMap = (forcastList[2] || {}).enemyTankProbabilityMap || new Map();
-    if (enemyTankProbabilityMap.has(theIndex)) {
-      const theNextTank = enemyTankProbabilityMap.get(theIndex);
-      const probability = theNextTank.probability || 1;
-      nextStepList.push({
-        tankId: tank.id,
-        nextStep: 'fire',
-        direction: direction,
-        weight: 500 * probability - distance,
-      });
-    }
+    // const enemyTankProbabilityMap = (forcastList[2] || {}).enemyTankProbabilityMap || new Map();
+    // if (enemyTankProbabilityMap.has(theIndex)) {
+    //   const theNextTank = enemyTankProbabilityMap.get(theIndex);
+    //   const probability = theNextTank.probability || 1;
+    //   nextStepList.push({
+    //     tankId: tank.id,
+    //     nextStep: 'fire',
+    //     direction: direction,
+    //     weight: 500 * probability - distance,
+    //   });
+    // }
     if (distance === bulletSpeed * 2 + 1) {
       // 如果有友军穿过这个位置
       const myTankPathMap = (forcastList[1] || {}).myTankPathMap || new Map();
@@ -163,17 +163,17 @@ const calTank = (theIndex, distance, tank, direction, myTankMap, enemyTankMap, n
         }
       }
       // 如果有敌人穿过这个位置
-      const enemyTankProbabilityMap = (forcastList[2] || {}).enemyTankProbabilityMap || new Map();
-      if (enemyTankProbabilityMap.has(theIndex)) {
-        const theNextTank = enemyTankProbabilityMap.get(theIndex);
-        const probability = theNextTank.probability || 1;
-        nextStepList.push({
-          tankId: tank.id,
-          nextStep: 'fire',
-          direction: direction,
-          weight: 500 * probability - distance,
-        });
-      }
+      // const enemyTankProbabilityMap = (forcastList[2] || {}).enemyTankProbabilityMap || new Map();
+      // if (enemyTankProbabilityMap.has(theIndex)) {
+      //   const theNextTank = enemyTankProbabilityMap.get(theIndex);
+      //   const probability = theNextTank.probability || 1;
+      //   nextStepList.push({
+      //     tankId: tank.id,
+      //     nextStep: 'fire',
+      //     direction: direction,
+      //     weight: 500 * probability - distance,
+      //   });
+      // }
     }
   } else {
     // 三回合以外的地方
@@ -251,6 +251,5 @@ export default (gameState, gameStateData, tank) => {
       return calTank(theIndex, distance, tank, 'right', myTankMap, enemyTankMap, nextStepList, forcastList, bulletSpeed);
     });
   }
-  console.log('autofire nextStepList', nextStepList)
   return nextStepList;
 }

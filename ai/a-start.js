@@ -360,3 +360,77 @@ export const getOperatorListFromPath = (path, limit) => {
   }
   return operatorList;
 }
+
+export const getOperatorListAndPathFromPath = (path, limit) => {
+  if (!path) {
+    throw 'path is null';
+  }
+  if (path.length === 0) {
+    return path;
+  }
+
+  const getPathBetween = (p1, p2) => {
+    if (p1.x === p2.x) {
+      return rangeArray(p1.y, p2.y).map(y => ({ ...p1, x: p1.x, y }));
+    } else if (p1.y === p2.y) {
+      return rangeArray(p1.x, p2.x).map(x => ({ ...p1, x, y: p1.y }));
+    }
+  };
+
+  const operatorList = [];
+  if (path.length > 1) {
+    for (let key = 0; key < path.length - 1 && (!limit || key < limit); key++) {
+      const nowPoint = path[key];
+      const nextPoint = path[key + 1];
+      const pathBetween = [];
+
+      if (nowPoint.direction !== nextPoint.direction) {
+        let turnTo = '';
+        switch (`${nowPoint.direction},${nextPoint.direction}`) {
+          case 'up,left':
+          case 'left,down':
+          case 'down,right':
+          case 'right,up':
+            turnTo = 'left';
+            break;
+          case 'up,right':
+          case 'left,up':
+          case 'down,left':
+          case 'right,down':
+            turnTo = 'right';
+            break;
+          case 'up,down':
+          case 'left,right':
+          case 'down,up':
+          case 'right,left':
+            turnTo = 'back';
+            break;
+        }
+        operatorList.push([{
+          ...nowPoint,
+          nextStep: 'turnTo',
+          turnTo,
+        }]);
+        operatorList.push([
+          {
+            ...nowPoint,
+            nextStep: 'move',
+            direction: nextPoint.direction,
+          },
+          ...getPathBetween(nowPoint, nextPoint),
+        ]);
+
+      } else {
+        operatorList.push([
+          {
+            ...nowPoint,
+            nextStep: 'move',
+          },
+          ...getPathBetween(nowPoint, nextPoint),
+        ]);
+      }
+    }
+    operatorList.push([{ ...path[path.length - 1] }]);
+  }
+  return operatorList;
+}

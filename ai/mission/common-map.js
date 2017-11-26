@@ -85,9 +85,7 @@ export default state => {
       case COMMON_MAP_DODGE_BULLET: {
         const { gameState, gameStateData } = state;
         const { myTank } = gameState;
-        myTank.forEach(tank => {
-          state.result.push(...dodgeBullet(gameState, gameStateData, tank));
-        });
+        state.result.push(...dodgeBullet(gameState, gameStateData));
         return makeAction(MAIN_FLOW_AVOID_CONFLICT);
       }
       default: {

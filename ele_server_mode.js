@@ -29,9 +29,7 @@ const numToDirection = (() => {
   return direction => theMap[direction] || direction;
 })();
 
-const transGameMap = gamemap => {
-  return gamemap;
-};
+let roundNum = 0;
 
 const defaultState = {
   terain: [],
@@ -61,7 +59,7 @@ const server = thrift.createServer(UserService, {
   uploadMap: function (gamemap, callback) {
     state = {
       ...defaultState,
-      terain: transGameMap(gamemap || []),
+      terain: gamemap || [],
     };
     initAi();
     console.log(gamemap);
@@ -147,8 +145,8 @@ const server = thrift.createServer(UserService, {
   },
   getNewOrders: function (callback) {
     (async () => {
+      console.log(roundNum + '-----------------------------');
       const nextStepList = await ai(state);
-      console.log(nextStepList);
       const nextTankOrder = [];
       nextStepList.forEach(tankOrder => {
         if (tankOrder.nextStep.nextStep !== 'stay') {
@@ -168,7 +166,9 @@ const server = thrift.createServer(UserService, {
       })));
       // tankOrders.forEach(tankOrder => console.log(tankOrder.tank));
       callback(null, nextTankOrder);
+      roundNum++;
     })().catch(e => {
+      roundNum++;
       setTimeout(() => {
         throw e;
       }, 0)
